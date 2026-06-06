@@ -74,7 +74,12 @@ export function ApiKeyForm() {
           </Alert>
         )}
 
-        <Button type="submit" loading={saving} disabled={!key.trim()}>
+        <Button
+          type="submit"
+          radius={"md"}
+          loading={saving}
+          disabled={!key.trim()}
+        >
           Sign in
         </Button>
       </Stack>
