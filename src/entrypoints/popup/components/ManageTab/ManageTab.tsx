@@ -172,7 +172,7 @@ export function ManageTab({ url, urlState, collections }: Props) {
           disabled={!dirty || removing}
           onClick={() => void handleSave()}
         >
-          {cardId ? "Save" : "Add to library"}
+          {cardId ? "Update" : "Add to library"}
         </Button>
       </Group>
     </Stack>
