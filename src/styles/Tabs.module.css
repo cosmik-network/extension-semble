@@ -1,0 +1,11 @@
+.tab {
+    color: var(--mantine-color-dark-2); /* Inactive tab color */
+
+    @mixin hover {
+        color: var(--mantine-color-dark-9);
+    }
+}
+
+.tab[data-active] {
+    color: var(--mantine-color-dark-9); /* Active tab color */
+}

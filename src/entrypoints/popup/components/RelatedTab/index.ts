@@ -1,0 +1,1 @@
+export { RelatedTab } from "./RelatedTab";

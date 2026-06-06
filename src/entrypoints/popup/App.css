@@ -1,0 +1,8 @@
+/* Popup shell. Match the body to the Card's surface color so the window's
+   own (opaque, square-cornered) background doesn't show white behind the
+   Card's rounded corners — letting us pick any Card radius freely. */
+html,
+body {
+  margin: 0;
+  background: var(--mantine-color-body);
+}

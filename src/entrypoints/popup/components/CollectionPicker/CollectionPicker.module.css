@@ -1,0 +1,18 @@
+.root {
+    border-width: 1.5px;
+    border-style: solid;
+    border-color: var(--mantine-color-default-border);
+
+    &:hover {
+        background-color: var(--mantine-color-gray-light);
+    }
+
+    &[data-checked] {
+        border-color: var(--mantine-color-blue-6);
+        background-color: var(--mantine-color-blue-light);
+    }
+
+    &:disabled {
+        cursor: default;
+    }
+}

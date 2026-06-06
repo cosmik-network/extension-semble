@@ -1,0 +1,50 @@
+{
+  "name": "wxt-react-starter",
+  "description": "manifest.json description",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@mantine/carousel": "^9.3.0",
+    "@mantine/core": "^9.3.0",
+    "@mantine/dates": "^9.3.0",
+    "@mantine/dropzone": "^9.3.0",
+    "@mantine/form": "^9.3.0",
+    "@mantine/hooks": "^9.3.0",
+    "@mantine/tiptap": "^9.3.0",
+    "@semble.so/api": "^0.0.3",
+    "@tanstack/react-query": "^5.101.0",
+    "@tiptap/extension-link": "^3.25.0",
+    "@tiptap/pm": "^3.25.0",
+    "@tiptap/react": "^3.25.0",
+    "@tiptap/starter-kit": "^3.25.0",
+    "dayjs": "^1.11.21",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
+    "i": "^0.3.7",
+    "npm": "^11.16.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-icons": "^5.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@wxt-dev/module-react": "^1.1.5",
+    "postcss": "^8.5.15",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "^5.9.3",
+    "wxt": "^0.20.26"
+  }
+}
