@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import {
   Button,
@@ -31,7 +31,7 @@ export function CollectionPicker({
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
 
-  const { viewportRef, maskImage, updateFade } = useScrollFade();
+  const { setViewport, maskImage, updateFade } = useScrollFade();
 
   const query = search.trim();
   const filtered = collections.filter((c) =>
@@ -41,8 +41,6 @@ export function CollectionPicker({
     (c) => c.name.toLowerCase() === query.toLowerCase(),
   );
   const showCreate = query !== "" && !exactMatch;
-
-  useEffect(updateFade, [filtered.length, showCreate, updateFade]);
 
   async function handleCreate() {
     if (!query || creating) return;
@@ -81,7 +79,7 @@ export function CollectionPicker({
 
       <ScrollArea.Autosize
         mah={180}
-        viewportRef={viewportRef}
+        viewportRef={setViewport}
         onScrollPositionChange={updateFade}
         styles={{
           viewport: maskImage

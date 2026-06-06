@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Button,
@@ -36,12 +36,9 @@ export function RelatedTab({ url, active }: { url: string; active: boolean }) {
     fetchNextPage,
   } = useSimilarUrls(url, { enabled: active, urlType: urlType ?? undefined });
 
-  const { viewportRef, maskImage, updateFade } = useScrollFade();
+  const { viewportRef, setViewport, maskImage, updateFade } = useScrollFade();
 
   const items = data?.pages.flatMap((page) => page.urls) ?? [];
-
-  // Refresh the fade once results render (and whenever they change).
-  useEffect(updateFade, [items.length, updateFade]);
 
   function handleScrollPositionChange() {
     updateFade();
@@ -120,7 +117,7 @@ export function RelatedTab({ url, active }: { url: string; active: boolean }) {
       <ScrollArea
         type="auto"
         style={{ flex: 1, minHeight: 0 }}
-        viewportRef={viewportRef}
+        viewportRef={setViewport}
         onScrollPositionChange={handleScrollPositionChange}
         styles={{
           viewport: maskImage
