@@ -207,14 +207,30 @@ export interface SimilarUrlsPage {
   hasMore: boolean;
 }
 
+/** Content types the similar-URLs search can be narrowed to. */
+export const URL_TYPES = [
+  "article",
+  "link",
+  "book",
+  "research",
+  "audio",
+  "video",
+  "social",
+  "event",
+  "software",
+] as const;
+
+export type UrlType = (typeof URL_TYPES)[number];
+
 /** Finds URLs similar to the given one. Pages are 1-based. */
 export async function findSimilarUrls(
   url: string,
   page = 1,
   limit = 20,
+  urlType?: UrlType,
 ): Promise<SimilarUrlsPage> {
   const body = await unwrap(
-    getClient().search.similarUrls({ query: { url, page, limit } }),
+    getClient().search.similarUrls({ query: { url, page, limit, urlType } }),
   );
   return {
     urls: body.urls.map((u) => ({

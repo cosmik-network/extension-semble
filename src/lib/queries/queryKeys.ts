@@ -1,3 +1,5 @@
+import type { UrlType } from "../library";
+
 /**
  * Centralized query keys so queries and mutations agree on what to cache and
  * invalidate. Keys are hierarchical: invalidating `urlState.all` invalidates
@@ -12,6 +14,7 @@ export const queryKeys = {
   },
   similarUrls: {
     all: ["similarUrls"] as const,
-    byUrl: (url: string) => ["similarUrls", url] as const,
+    byUrl: (url: string, urlType?: UrlType) =>
+      ["similarUrls", url, urlType ?? null] as const,
   },
 };
