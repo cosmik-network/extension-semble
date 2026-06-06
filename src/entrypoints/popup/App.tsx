@@ -66,7 +66,7 @@ function App() {
         // and scroll; max-height alone doesn't resolve the flex/percentage
         // height chain. Loading uses the same height as ready so the popup
         // doesn't jump when the content arrives.
-        height: phase === "loading" || phase === "ready" ? 570 : undefined,
+        height: phase === "loading" || phase === "ready" ? 590 : undefined,
       }}
     >
       {/* Decorative banner pinned to the top, sitting under all the content.
@@ -198,7 +198,7 @@ function App() {
 function LoadingState() {
   return (
     <Center style={{ flex: 1 }}>
-      <Stack align="center">
+      <Stack align="center" gap={"sm"}>
         <Loader size="sm" color="gray" />
         <Text fw={600} fz={"sm"} c={"gray"}>
           Connecting...

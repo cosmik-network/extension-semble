@@ -17,6 +17,7 @@ export function NoteEditor({ value, onChange }: Props) {
         autosize
         minRows={3}
         rows={3}
+        maxRows={3}
         value={value}
         onChange={(e) => onChange(e.currentTarget.value)}
       />
