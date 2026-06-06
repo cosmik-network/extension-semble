@@ -101,7 +101,14 @@ function App() {
         mb="lg"
         style={{ flexShrink: 0 }}
       >
-        <img src={sembleLogo} alt="Semble" height={20} />
+        <a
+          href="https://semble.so/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: "flex" }}
+        >
+          <img src={sembleLogo} alt="Semble" height={20} />
+        </a>
 
         <Group gap={"xxs"} wrap="nowrap">
           {profile.data ? (
