@@ -198,7 +198,12 @@ function App() {
 function LoadingState() {
   return (
     <Center style={{ flex: 1 }}>
-      <Loader size="sm" />
+      <Stack align="center">
+        <Loader size="sm" color="gray" />
+        <Text fw={600} fz={"sm"} c={"gray"}>
+          Connecting...
+        </Text>
+      </Stack>
     </Center>
   );
 }
