@@ -8,6 +8,7 @@ export default defineConfig({
     baseIconPath: 'assets/icon.svg',
   },
   manifest: {
+    name: 'Semble',
     permissions: ['tabs', 'storage'],
     host_permissions: ['https://api.semble.so/*'],
   },
