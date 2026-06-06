@@ -1,4 +1,4 @@
-import { Stack, Text, Textarea } from "@mantine/core";
+import { Stack, Textarea } from "@mantine/core";
 
 interface Props {
   value: string;
@@ -8,9 +8,6 @@ interface Props {
 export function NoteEditor({ value, onChange }: Props) {
   return (
     <Stack gap={4}>
-      {/*<Text size="sm" fw={500}>
-        Note
-      </Text>*/}
       <Textarea
         placeholder="Add a note…"
         variant="filled"
