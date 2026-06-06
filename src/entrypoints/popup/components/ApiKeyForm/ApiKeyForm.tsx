@@ -52,6 +52,7 @@ export function ApiKeyForm() {
             target="_blank"
             rel="noreferrer"
             size="sm"
+            color="blue"
           >
             semble.so/settings/api-keys
           </Anchor>
