@@ -9,7 +9,7 @@ export default defineConfig({
   },
   manifest: {
     name: 'Semble',
-    permissions: ['tabs', 'storage'],
+    permissions: ['tabs', 'storage', 'contextMenus', 'notifications'],
     host_permissions: ['https://api.semble.so/*'],
   },
 });

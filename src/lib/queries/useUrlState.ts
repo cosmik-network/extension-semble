@@ -12,5 +12,8 @@ export function useUrlState(url: string) {
     queryKey: queryKeys.urlState.byUrl(url),
     queryFn: () => loadUrlState(url),
     enabled: !!url && !!getApiKey(),
+    // The URL may have been saved/removed outside the popup (context menu),
+    // so always refetch on open rather than trusting the staleTime window.
+    refetchOnMount: "always",
   });
 }

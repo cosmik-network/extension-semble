@@ -17,4 +17,9 @@ export const queryKeys = {
     byUrl: (url: string, urlType?: UrlType) =>
       ["similarUrls", url, urlType ?? null] as const,
   },
+  search: {
+    all: ["search"] as const,
+    byQuery: (query: string, urlType?: UrlType) =>
+      ["search", query, urlType ?? null] as const,
+  },
 };

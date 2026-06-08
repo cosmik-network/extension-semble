@@ -100,6 +100,18 @@ export async function listMyCollections(): Promise<CollectionSummary[]> {
   }));
 }
 
+/**
+ * Lightweight saved/unsaved check for a URL — used by the background script to
+ * set the toolbar badge. Unlike {@link loadUrlState} it never falls through to
+ * fetching metadata, so it's a single request.
+ */
+export async function isUrlInLibrary(url: string): Promise<boolean> {
+  const status = await unwrap(
+    getClient().cards.urlLibraryStatus({ query: { url } }),
+  );
+  return !!status.card;
+}
+
 /** Loads the saved/unsaved state and metadata for a URL. */
 export async function loadUrlState(url: string): Promise<UrlState> {
   const status = await unwrap(
@@ -231,6 +243,40 @@ export async function findSimilarUrls(
 ): Promise<SimilarUrlsPage> {
   const body = await unwrap(
     getClient().search.similarUrls({ query: { url, page, limit, urlType } }),
+  );
+  return {
+    urls: body.urls.map((u) => ({
+      metadata: toMetadata(u.metadata),
+      libraryCount: u.urlLibraryCount,
+      inLibrary: u.urlInLibrary ?? false,
+    })),
+    page: body.pagination.currentPage,
+    hasMore: body.pagination.hasMore,
+  };
+}
+
+/** A page of search results (reuses the {@link SimilarUrl} shape). */
+export interface SearchPage {
+  urls: SimilarUrl[];
+  page: number;
+  hasMore: boolean;
+}
+
+/**
+ * Full-text search across Semble (titles and URLs), not just the user's own
+ * library — results carry `inLibrary` so the UI can mark which are already
+ * saved. Pages are 1-based.
+ */
+export async function searchSemble(
+  query: string,
+  page = 1,
+  limit = 20,
+  urlType?: UrlType,
+): Promise<SearchPage> {
+  const body = await unwrap(
+    getClient().cards.searchCards({
+      query: { searchQuery: query.trim(), page, limit, urlType },
+    }),
   );
   return {
     urls: body.urls.map((u) => ({

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addToLibrary } from "../library";
+import { requestBadgeRefresh } from "../badge";
 import { queryKeys } from "../queries/queryKeys";
 
 /**
@@ -10,13 +11,17 @@ export function useAddToLibrary() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addToLibrary,
-    onSuccess: (_cardId, variables) =>
-      Promise.all([
+    onSuccess: (_cardId, variables) => {
+      requestBadgeRefresh();
+      return Promise.all([
         queryClient.invalidateQueries({
           queryKey: queryKeys.urlState.byUrl(variables.url),
         }),
         // Card counts changed.
         queryClient.invalidateQueries({ queryKey: queryKeys.collections }),
-      ]),
+        // Search results' "Saved" badges may now apply to this URL.
+        queryClient.invalidateQueries({ queryKey: queryKeys.search.all }),
+      ]);
+    },
   });
 }

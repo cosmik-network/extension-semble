@@ -19,6 +19,7 @@ import { UrlCard } from "./components/UrlCard";
 import { ProfileMenu, ProfileMenuSkeleton } from "./components/ProfileMenu";
 import { ManageTab } from "./components/ManageTab";
 import { RelatedTab } from "./components/RelatedTab";
+import { SearchTab } from "./components/SearchTab";
 import headerBg from "../../assets/semble-header-bg.webp";
 import sembleLogo from "../../assets/semble.svg";
 
@@ -101,14 +102,7 @@ function App() {
         mb="lg"
         style={{ flexShrink: 0 }}
       >
-        <a
-          href="https://semble.so/"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: "flex" }}
-        >
-          <img src={sembleLogo} alt="Semble" height={20} />
-        </a>
+        <img src={sembleLogo} alt="Semble" height={20} />
 
         <Group gap={"xxs"} wrap="nowrap">
           {profile.data ? (
@@ -173,6 +167,7 @@ function App() {
             <Tabs.List grow>
               <Tabs.Tab value="save">Manage</Tabs.Tab>
               <Tabs.Tab value="related">Related</Tabs.Tab>
+              <Tabs.Tab value="search">Search</Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="save" pt="sm" style={{ flex: 1, minHeight: 0 }}>
@@ -193,6 +188,15 @@ function App() {
               style={{ flex: 1, minHeight: 0 }}
             >
               <RelatedTab url={url} active={activeTab === "related"} />
+            </Tabs.Panel>
+
+            <Tabs.Panel
+              value="search"
+              pt="sm"
+              keepMounted
+              style={{ flex: 1, minHeight: 0 }}
+            >
+              <SearchTab active={activeTab === "search"} />
             </Tabs.Panel>
           </Tabs>
         </Stack>

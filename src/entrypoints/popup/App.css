@@ -3,6 +3,6 @@
    Card's rounded corners — letting us pick any Card radius freely. */
 html,
 body {
-  margin: 0;
-  background: var(--mantine-color-body);
+    margin: 0;
+    background: transparent;
 }
