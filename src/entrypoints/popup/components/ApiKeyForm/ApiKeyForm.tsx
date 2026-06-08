@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import {
   Alert,
   Anchor,
@@ -19,30 +19,27 @@ import { queryKeys } from "../../../../lib/queries/queryKeys";
  */
 export function ApiKeyForm() {
   const queryClient = useQueryClient();
+  // Controlled only so the submit button can disable until something is typed.
   const [key, setKey] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    const candidate = key.trim();
-    if (!candidate) return;
-
-    setSaving(true);
-    setError(null);
-    try {
-      const profile = await validateAndSaveApiKey(candidate);
-      // Seed the cache so the header shows the account immediately.
-      queryClient.setQueryData(queryKeys.profile, profile);
-    } catch {
-      setError("That API key didn't work. Check it and try again.");
-    } finally {
-      setSaving(false);
-    }
-  }
+  const [error, submit, saving] = useActionState<string | null, FormData>(
+    async (_prev, formData) => {
+      const candidate = String(formData.get("key") ?? "").trim();
+      if (!candidate) return null;
+      try {
+        const profile = await validateAndSaveApiKey(candidate);
+        // Seed the cache so the header shows the account immediately.
+        queryClient.setQueryData(queryKeys.profile, profile);
+        return null;
+      } catch {
+        return "That API key didn't work. Check it and try again.";
+      }
+    },
+    null,
+  );
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form action={submit}>
       <Stack gap="sm">
         <Title order={4}>Sign in to Semble</Title>
         <Text size="sm" c="dimmed">
@@ -60,6 +57,7 @@ export function ApiKeyForm() {
         </Text>
 
         <PasswordInput
+          name="key"
           value={key}
           onChange={(e) => setKey(e.currentTarget.value)}
           placeholder="sk_..."

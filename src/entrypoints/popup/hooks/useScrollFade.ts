@@ -9,7 +9,6 @@ import { useCallback, useRef, useState } from "react";
  */
 export function useScrollFade() {
   const viewportRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<ResizeObserver | null>(null);
   const [fadeTop, setFadeTop] = useState(false);
   const [fadeBottom, setFadeBottom] = useState(false);
 
@@ -25,19 +24,20 @@ export function useScrollFade() {
 
   // Callback ref (rather than an effect) so the observer re-attaches whenever
   // the ScrollArea itself mounts/unmounts, e.g. when conditionally rendered.
+  // The returned cleanup (React 19) tears the observer down on unmount.
   const setViewport = useCallback(
-    (el: HTMLDivElement | null) => {
+    (el: HTMLDivElement) => {
       viewportRef.current = el;
-      observerRef.current?.disconnect();
-      observerRef.current = null;
-      if (!el) return;
       const observer = new ResizeObserver(updateFade);
       // The viewport for its own resizes, the content wrapper for growth
       // (new items, filtering, images loading in). Observing fires an initial
       // measurement, which replaces the old on-mount effect.
       observer.observe(el);
       if (el.firstElementChild) observer.observe(el.firstElementChild);
-      observerRef.current = observer;
+      return () => {
+        observer.disconnect();
+        viewportRef.current = null;
+      };
     },
     [updateFade],
   );

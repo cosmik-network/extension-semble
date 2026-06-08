@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import {
   Alert,
   Anchor,
@@ -59,7 +59,7 @@ function SetupView() {
 }
 
 /** Key configured: connected account, masked key, replace and clear. */
-function ConfiguredView({ apiKey }: { apiKey: string }) {
+function ConfiguredView(props: { apiKey: string }) {
   const queryClient = useQueryClient();
   const profile = useMyProfile();
   const [replacing, setReplacing] = useState(false);
@@ -101,7 +101,7 @@ function ConfiguredView({ apiKey }: { apiKey: string }) {
 
       <PasswordInput
         label="API key"
-        value={apiKey}
+        value={props.apiKey}
         readOnly
         description="Stored locally in this browser."
       />
@@ -134,43 +134,37 @@ function ConfiguredView({ apiKey }: { apiKey: string }) {
  * Key entry form: validates the candidate against the profile endpoint and
  * persists it only on success.
  */
-function KeyForm({
-  submitLabel,
-  onDone,
-  onCancel,
-}: {
+function KeyForm(props: {
   submitLabel: string;
   onDone?: () => void;
   onCancel?: () => void;
 }) {
   const queryClient = useQueryClient();
+  // Controlled only so the submit button can disable until something is typed.
   const [key, setKey] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    const candidate = key.trim();
-    if (!candidate) return;
-
-    setSaving(true);
-    setError(null);
-    try {
-      const profile = await validateAndSaveApiKey(candidate);
-      queryClient.clear(); // drop any previous account's cached data
-      queryClient.setQueryData(queryKeys.profile, profile);
-      onDone?.();
-    } catch {
-      setError("That API key didn't work. Check it and try again.");
-    } finally {
-      setSaving(false);
-    }
-  }
+  const [error, submit, saving] = useActionState<string | null, FormData>(
+    async (_prev, formData) => {
+      const candidate = String(formData.get("key") ?? "").trim();
+      if (!candidate) return null;
+      try {
+        const profile = await validateAndSaveApiKey(candidate);
+        queryClient.clear(); // drop any previous account's cached data
+        queryClient.setQueryData(queryKeys.profile, profile);
+        props.onDone?.();
+        return null;
+      } catch {
+        return "That API key didn't work. Check it and try again.";
+      }
+    },
+    null,
+  );
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form action={submit}>
       <Stack gap="xs">
         <PasswordInput
+          name="key"
           value={key}
           onChange={(e) => setKey(e.currentTarget.value)}
           placeholder="sk_..."
@@ -187,10 +181,15 @@ function KeyForm({
 
         <Group gap="xs">
           <Button type="submit" loading={saving} disabled={!key.trim()}>
-            {submitLabel}
+            {props.submitLabel}
           </Button>
-          {onCancel && (
-            <Button variant="subtle" color="gray" onClick={onCancel}>
+          {props.onCancel && (
+            <Button
+              type="button"
+              variant="subtle"
+              color="gray"
+              onClick={props.onCancel}
+            >
               Cancel
             </Button>
           )}
