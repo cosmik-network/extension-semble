@@ -6,6 +6,7 @@ import {
   Center,
   Group,
   Loader,
+  Scroller,
   Stack,
   Tabs,
   Text,
@@ -20,6 +21,7 @@ import { ProfileMenu, ProfileMenuSkeleton } from "./components/ProfileMenu";
 import { ManageTab } from "./components/ManageTab";
 import { RelatedTab } from "./components/RelatedTab";
 import { SearchTab } from "./components/SearchTab";
+import { ConnectionsTab } from "./components/ConnectionsTab";
 import headerBg from "../../assets/semble-header-bg.webp";
 import sembleLogo from "../../assets/semble.svg";
 
@@ -163,12 +165,16 @@ function App() {
               flexDirection: "column",
             }}
           >
-            {/* Fixed tab bar */}
-            <Tabs.List grow>
-              <Tabs.Tab value="save">Manage</Tabs.Tab>
-              <Tabs.Tab value="related">Related</Tabs.Tab>
-              <Tabs.Tab value="search">Search</Tabs.Tab>
-            </Tabs.List>
+            {/* Fixed tab bar — scrolls horizontally instead of wrapping when
+                the labels exceed the popup width. */}
+            <Scroller style={{ flexShrink: 0 }}>
+              <Tabs.List style={{ flexWrap: "nowrap" }}>
+                <Tabs.Tab value="save">Manage</Tabs.Tab>
+                <Tabs.Tab value="related">Related</Tabs.Tab>
+                <Tabs.Tab value="connections">Connections</Tabs.Tab>
+                <Tabs.Tab value="search">Search</Tabs.Tab>
+              </Tabs.List>
+            </Scroller>
 
             <Tabs.Panel value="save" pt="sm" style={{ flex: 1, minHeight: 0 }}>
               {/* Keyed by card id so local edits reset when the card is
@@ -197,6 +203,18 @@ function App() {
               style={{ flex: 1, minHeight: 0 }}
             >
               <SearchTab active={activeTab === "search"} />
+            </Tabs.Panel>
+
+            <Tabs.Panel
+              value="connections"
+              pt="sm"
+              keepMounted
+              style={{ flex: 1, minHeight: 0 }}
+            >
+              <ConnectionsTab
+                url={url}
+                active={activeTab === "connections"}
+              />
             </Tabs.Panel>
           </Tabs>
         </Stack>

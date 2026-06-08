@@ -3,7 +3,7 @@ import { Card, Group, Skeleton, Stack } from "@mantine/core";
 /** Loading placeholder mirroring {@link RelatedItem}'s structure. */
 export function RelatedItemSkeleton() {
   return (
-    <Card withBorder radius="md" p="xs">
+    <Card withBorder radius="lg" p="xs">
       <Group justify="space-between" align="flex-start" wrap="nowrap" gap="md">
         <Stack gap={"sm"} flex={1} miw={0}>
           {/* domain */}

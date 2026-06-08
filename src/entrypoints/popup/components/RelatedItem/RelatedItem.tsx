@@ -25,7 +25,7 @@ export function RelatedItem({ item }: { item: SimilarUrl }) {
       target="_blank"
       rel="noreferrer"
       withBorder
-      radius="md"
+      radius="lg"
       p="xs"
       c="inherit"
       td="none"

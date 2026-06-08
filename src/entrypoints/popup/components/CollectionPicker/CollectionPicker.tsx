@@ -119,6 +119,7 @@ export function CollectionPicker({
                 key={col.id}
                 className={classes.root}
                 p={"xs"}
+                radius={"lg"}
                 value={col.id}
                 checked={checked}
                 onChange={(value) => onToggle(col.id, value)}

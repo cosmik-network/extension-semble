@@ -49,7 +49,7 @@ export function SearchTab({ active }: { active: boolean }) {
       <UrlTypeFilter value={urlType} onChange={setUrlType} />
 
       {debouncedQuery.trim() ? (
-        <UrlResultList query={search} emptyMessage="No results found." />
+        <UrlResultList query={search} emptyMessage="No results found" />
       ) : (
         <SearchPrompt />
       )}

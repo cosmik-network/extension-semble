@@ -22,7 +22,7 @@ export function RelatedTab({ url, active }: { url: string; active: boolean }) {
   return (
     <Stack gap="xs" h="100%">
       <UrlTypeFilter value={urlType} onChange={setUrlType} />
-      <UrlResultList query={query} emptyMessage="No similar URLs found." />
+      <UrlResultList query={query} emptyMessage="No similar URLs found" />
     </Stack>
   );
 }

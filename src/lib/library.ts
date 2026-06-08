@@ -41,7 +41,7 @@ export interface MyProfile {
 }
 
 /** Narrows the API's card content to the metadata fields we display. */
-function toMetadata(content: {
+export function toMetadata(content: {
   url: string;
   title?: string;
   siteName?: string;

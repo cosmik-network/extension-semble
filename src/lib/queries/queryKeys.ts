@@ -22,4 +22,8 @@ export const queryKeys = {
     byQuery: (query: string, urlType?: UrlType) =>
       ["search", query, urlType ?? null] as const,
   },
+  connections: {
+    all: ["connections"] as const,
+    byUrl: (url: string) => ["connections", url] as const,
+  },
 };
