@@ -62,8 +62,8 @@ function SearchPrompt() {
   return (
     <Center style={{ flex: 1 }} px="md">
       <Stack align="center" gap="xs">
-        <ThemeIcon size={36} radius="xl" variant="light" color="gray">
-          <FiSearch size={16} />
+        <ThemeIcon size={36} radius="xl" variant="transparent" color="gray">
+          <FiSearch size={22} />
         </ThemeIcon>
         <Text c="dimmed" fz="sm" ta="center" maw={220}>
           Find anything saved across the community — articles, videos, papers,
