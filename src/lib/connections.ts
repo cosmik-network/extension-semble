@@ -1,20 +1,6 @@
 import { getClient, unwrap } from "./semble";
 import { toMetadata, type UrlMetadata } from "./library";
 
-/** The typed relationships Semble supports between two URLs. */
-export const CONNECTION_TYPES = [
-  "SUPPORTS",
-  "OPPOSES",
-  "ADDRESSES",
-  "HELPFUL",
-  "LEADS_TO",
-  "RELATED",
-  "SUPPLEMENT",
-  "EXPLAINER",
-] as const;
-
-export type ConnectionType = (typeof CONNECTION_TYPES)[number];
-
 export interface ConnectionCurator {
   name: string;
   handle: string;

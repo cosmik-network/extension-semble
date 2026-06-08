@@ -41,17 +41,11 @@ interface InfiniteListProps<P, T> {
  * edge fade, and near-bottom paging — leaving item extraction and rendering to
  * the caller. Shared by the URL tabs (Related, Search) and the Connections tab.
  */
-export function InfiniteList<P, T>({
-  query,
-  getItems,
-  getKey,
-  renderItem,
-  emptyMessage,
-  renderSkeleton,
-  skeletonCount = 6,
-}: InfiniteListProps<P, T>) {
-  const { data, isPending, isError, error, isFetchingNextPage } = query;
+export function InfiniteList<P, T>(props: InfiniteListProps<P, T>) {
+  const { data, isPending, isError, error, hasNextPage, isFetchingNextPage } =
+    props.query;
   const { viewportRef, setViewport, maskImage, updateFade } = useScrollFade();
+  const skeletonCount = props.skeletonCount ?? 6;
 
   function handleScrollPositionChange() {
     updateFade();
@@ -60,8 +54,8 @@ export function InfiniteList<P, T>({
     const nearBottom =
       el.scrollTop + el.clientHeight >=
       el.scrollHeight - NEXT_PAGE_SCROLL_MARGIN;
-    if (nearBottom && query.hasNextPage && !isFetchingNextPage) {
-      void query.fetchNextPage();
+    if (nearBottom && hasNextPage && !isFetchingNextPage) {
+      void props.query.fetchNextPage();
     }
   }
 
@@ -70,8 +64,8 @@ export function InfiniteList<P, T>({
       <Stack gap="xxs">
         {Array.from({ length: skeletonCount }, (_, i) => (
           <Fragment key={i}>
-            {renderSkeleton ? (
-              renderSkeleton()
+            {props.renderSkeleton ? (
+              props.renderSkeleton()
             ) : (
               <Skeleton height={60} radius="lg" />
             )}
@@ -89,11 +83,11 @@ export function InfiniteList<P, T>({
     );
   }
 
-  const items = data?.pages.flatMap(getItems) ?? [];
+  const items = data?.pages.flatMap(props.getItems) ?? [];
   if (items.length === 0) {
     return (
       <Text size="sm" fw={500} c="dimmed" mx={"auto"} my={"xs"}>
-        {emptyMessage}
+        {props.emptyMessage}
       </Text>
     );
   }
@@ -112,7 +106,7 @@ export function InfiniteList<P, T>({
     >
       <Stack gap="xxs">
         {items.map((item) => (
-          <Fragment key={getKey(item)}>{renderItem(item)}</Fragment>
+          <Fragment key={props.getKey(item)}>{props.renderItem(item)}</Fragment>
         ))}
         {isFetchingNextPage && (
           <Loader size="sm" color="gray" mx="auto" my="sm" />

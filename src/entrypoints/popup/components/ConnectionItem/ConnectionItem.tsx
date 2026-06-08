@@ -22,8 +22,8 @@ function humanizeType(type: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-export function ConnectionItem({ connection }: { connection: Connection }) {
-  const { other, type, note, curator } = connection;
+export function ConnectionItem(props: { connection: Connection }) {
+  const { other, type, note, curator } = props.connection;
   const domain = domainFromUrl(other.url);
   const [imageError, setImageError] = useState(false);
 

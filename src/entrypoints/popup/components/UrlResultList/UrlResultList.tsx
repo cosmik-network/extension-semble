@@ -24,15 +24,15 @@ interface UrlResultListProps {
  * A thin wrapper over {@link InfiniteList} that renders each result as a
  * {@link RelatedItem}.
  */
-export function UrlResultList({ query, emptyMessage }: UrlResultListProps) {
+export function UrlResultList(props: UrlResultListProps) {
   return (
     <InfiniteList
-      query={query}
+      query={props.query}
       getItems={(page) => page.urls}
       getKey={(item) => item.metadata.url}
       renderItem={(item) => <RelatedItem item={item} />}
       renderSkeleton={() => <RelatedItemSkeleton />}
-      emptyMessage={emptyMessage}
+      emptyMessage={props.emptyMessage}
     />
   );
 }

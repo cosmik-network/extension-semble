@@ -7,14 +7,8 @@ import { ConnectionItem } from "../ConnectionItem";
  * Infinite list of the current page's connections (Semble's typed links).
  * Fetches lazily the first time its tab becomes active. Read-only for now.
  */
-export function ConnectionsTab({
-  url,
-  active,
-}: {
-  url: string;
-  active: boolean;
-}) {
-  const query = useConnections(url, { enabled: active });
+export function ConnectionsTab(props: { url: string; active: boolean }) {
+  const query = useConnections(props.url, { enabled: props.active });
 
   return (
     <Stack gap="xs" h="100%">

@@ -15,7 +15,9 @@ import { clearApiKey } from "../../../../lib/semble";
  * Header avatar that opens a profile menu: profile link, settings, log out.
  * Mirrors the web app's ProfileMenu styling.
  */
-export function ProfileMenu({ profile }: { profile: MyProfile }) {
+export function ProfileMenu(props: { profile: MyProfile }) {
+  const { profile } = props;
+
   async function handleLogout() {
     // Clearing the key flips `useApiKey()` and the popup falls back to the
     // sign-in form; drop cached data so the next sign-in starts clean.

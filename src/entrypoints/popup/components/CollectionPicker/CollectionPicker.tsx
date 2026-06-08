@@ -22,22 +22,17 @@ interface Props {
   onCreate: (name: string) => Promise<void>;
 }
 
-export function CollectionPicker({
-  collections,
-  selectedIds,
-  onToggle,
-  onCreate,
-}: Props) {
+export function CollectionPicker(props: Props) {
   const [search, setSearch] = useState("");
   const [creating, setCreating] = useState(false);
 
   const { setViewport, maskImage, updateFade } = useScrollFade();
 
   const query = search.trim();
-  const filtered = collections.filter((c) =>
+  const filtered = props.collections.filter((c) =>
     c.name.toLowerCase().includes(query.toLowerCase()),
   );
-  const exactMatch = collections.some(
+  const exactMatch = props.collections.some(
     (c) => c.name.toLowerCase() === query.toLowerCase(),
   );
   const showCreate = query !== "" && !exactMatch;
@@ -46,7 +41,7 @@ export function CollectionPicker({
     if (!query || creating) return;
     setCreating(true);
     try {
-      await onCreate(query);
+      await props.onCreate(query);
       setSearch("");
     } finally {
       setCreating(false);
@@ -106,14 +101,14 @@ export function CollectionPicker({
 
           {filtered.length === 0 && !showCreate && (
             <Text size="xs" c="dimmed">
-              {collections.length === 0
+              {props.collections.length === 0
                 ? "No collections yet."
                 : "No collections match."}
             </Text>
           )}
 
           {filtered.map((col) => {
-            const checked = selectedIds.includes(col.id);
+            const checked = props.selectedIds.includes(col.id);
             return (
               <CheckboxCard
                 key={col.id}
@@ -122,7 +117,7 @@ export function CollectionPicker({
                 radius={"lg"}
                 value={col.id}
                 checked={checked}
-                onChange={(value) => onToggle(col.id, value)}
+                onChange={(value) => props.onToggle(col.id, value)}
               >
                 <Group justify="space-between" wrap="nowrap" gap="xs">
                   <Text size="sm" fw={500} lineClamp={1} flex={1}>

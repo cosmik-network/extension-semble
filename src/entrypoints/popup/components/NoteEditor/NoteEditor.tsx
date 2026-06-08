@@ -5,7 +5,7 @@ interface Props {
   onChange: (value: string) => void;
 }
 
-export function NoteEditor({ value, onChange }: Props) {
+export function NoteEditor(props: Props) {
   return (
     <Stack gap={4}>
       <Textarea
@@ -15,8 +15,8 @@ export function NoteEditor({ value, onChange }: Props) {
         minRows={3}
         rows={3}
         maxRows={3}
-        value={value}
-        onChange={(e) => onChange(e.currentTarget.value)}
+        value={props.value}
+        onChange={(e) => props.onChange(e.currentTarget.value)}
       />
     </Stack>
   );

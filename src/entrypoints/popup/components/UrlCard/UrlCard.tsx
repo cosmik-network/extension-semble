@@ -12,13 +12,11 @@ import {
 import { domainFromUrl } from "../../../../lib/activeTab";
 import type { UrlMetadata } from "../../../../lib/library";
 
-export function UrlCard({
-  metadata,
-  inLibrary,
-}: {
+export function UrlCard(props: {
   metadata: UrlMetadata;
   inLibrary?: boolean;
 }) {
+  const { metadata } = props;
   const domain = domainFromUrl(metadata.url);
   const [imageError, setImageError] = useState(false);
 
@@ -47,7 +45,7 @@ export function UrlCard({
               {domain}
             </Anchor>
           </Tooltip>
-          {inLibrary && (
+          {props.inLibrary && (
             <Badge
               size="xs"
               color="green"

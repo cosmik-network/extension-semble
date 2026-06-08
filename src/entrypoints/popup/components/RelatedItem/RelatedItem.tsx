@@ -13,8 +13,8 @@ import { domainFromUrl } from "../../../../lib/activeTab";
 import type { SimilarUrl } from "../../../../lib/library";
 import classes from "./RelatedItem.module.css";
 
-export function RelatedItem({ item }: { item: SimilarUrl }) {
-  const { metadata, inLibrary } = item;
+export function RelatedItem(props: { item: SimilarUrl }) {
+  const { metadata, inLibrary } = props.item;
   const domain = domainFromUrl(metadata.url);
   const [imageError, setImageError] = useState(false);
 

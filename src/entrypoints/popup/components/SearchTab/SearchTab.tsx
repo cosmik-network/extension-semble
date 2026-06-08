@@ -20,13 +20,13 @@ import { UrlResultList } from "../UrlResultList";
  * can be narrowed to a single content type. Fetches lazily once its tab is
  * active and a query has been entered.
  */
-export function SearchTab({ active }: { active: boolean }) {
+export function SearchTab(props: { active: boolean }) {
   const [query, setQuery] = useState("");
   const [debouncedQuery] = useDebouncedValue(query, 300);
   const [urlType, setUrlType] = useState<UrlType | null>(null);
 
   const search = useSembleSearch(debouncedQuery, {
-    enabled: active,
+    enabled: props.active,
     urlType: urlType ?? undefined,
   });
 
@@ -67,7 +67,7 @@ function SearchPrompt() {
         </ThemeIcon>
         <Text c="dimmed" fz="sm" ta="center" maw={220}>
           Find anything saved across the community — articles, videos, papers,
-          and more.
+          and more
         </Text>
       </Stack>
     </Center>

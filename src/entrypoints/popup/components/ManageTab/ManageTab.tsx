@@ -35,7 +35,8 @@ function sameSet(a: string[], b: string[]): boolean {
  * local (unsaved) edits; `urlState` is the persisted server state. Mount with
  * `key={urlState.cardId}` so the edits reset when the card is added/removed.
  */
-export function ManageTab({ url, urlState, collections }: Props) {
+export function ManageTab(props: Props) {
+  const { urlState } = props;
   const cardId = urlState.cardId;
 
   // Local, unsaved edits (server state lives in the urlState query).
@@ -79,7 +80,7 @@ export function ManageTab({ url, urlState, collections }: Props) {
     try {
       if (!cardId) {
         await addToLibrary.mutateAsync({
-          url,
+          url: props.url,
           note,
           collectionIds: selectedIds,
         });
@@ -124,7 +125,7 @@ export function ManageTab({ url, urlState, collections }: Props) {
       <ScrollArea type="auto" style={{ flex: 1, minHeight: 0 }}>
         <Stack gap="sm">
           <CollectionPicker
-            collections={collections}
+            collections={props.collections}
             selectedIds={selectedIds}
             onToggle={handleToggle}
             onCreate={handleCreateCollection}

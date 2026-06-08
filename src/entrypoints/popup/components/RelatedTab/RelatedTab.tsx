@@ -11,11 +11,11 @@ import { UrlResultList } from "../UrlResultList";
  * further pages as the list is scrolled. Results can be narrowed to a single
  * content type.
  */
-export function RelatedTab({ url, active }: { url: string; active: boolean }) {
+export function RelatedTab(props: { url: string; active: boolean }) {
   const [urlType, setUrlType] = useState<UrlType | null>(null);
 
-  const query = useSimilarUrls(url, {
-    enabled: active,
+  const query = useSimilarUrls(props.url, {
+    enabled: props.active,
     urlType: urlType ?? undefined,
   });
 
