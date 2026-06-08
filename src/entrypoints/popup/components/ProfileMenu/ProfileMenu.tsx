@@ -62,6 +62,15 @@ export function ProfileMenu({ profile }: { profile: MyProfile }) {
           Settings
         </Menu.Item>
 
+        <Menu.Item
+          component="a"
+          href="https://tangled.org/@cosmik.network/semble/issues"
+          target="_blank"
+          color="gray"
+        >
+          Submit an issue
+        </Menu.Item>
+
         <Menu.Item color="red" onClick={() => void handleLogout()}>
           Log out
         </Menu.Item>
