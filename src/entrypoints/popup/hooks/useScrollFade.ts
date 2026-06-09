@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 /**
  * Fades whichever edge of a ScrollArea has more content to scroll to. Wire the
@@ -12,7 +12,7 @@ export function useScrollFade() {
   const [fadeTop, setFadeTop] = useState(false);
   const [fadeBottom, setFadeBottom] = useState(false);
 
-  const updateFade = useCallback(() => {
+  const updateFade = () => {
     const el = viewportRef.current;
     if (!el) return;
     const overflowing = el.scrollHeight > el.clientHeight + 1;
@@ -20,27 +20,24 @@ export function useScrollFade() {
     const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
     setFadeTop(overflowing && !atTop);
     setFadeBottom(overflowing && !atBottom);
-  }, []);
+  };
 
   // Callback ref (rather than an effect) so the observer re-attaches whenever
   // the ScrollArea itself mounts/unmounts, e.g. when conditionally rendered.
   // The returned cleanup (React 19) tears the observer down on unmount.
-  const setViewport = useCallback(
-    (el: HTMLDivElement) => {
-      viewportRef.current = el;
-      const observer = new ResizeObserver(updateFade);
-      // The viewport for its own resizes, the content wrapper for growth
-      // (new items, filtering, images loading in). Observing fires an initial
-      // measurement, which replaces the old on-mount effect.
-      observer.observe(el);
-      if (el.firstElementChild) observer.observe(el.firstElementChild);
-      return () => {
-        observer.disconnect();
-        viewportRef.current = null;
-      };
-    },
-    [updateFade],
-  );
+  const setViewport = (el: HTMLDivElement) => {
+    viewportRef.current = el;
+    const observer = new ResizeObserver(updateFade);
+    // The viewport for its own resizes, the content wrapper for growth
+    // (new items, filtering, images loading in). Observing fires an initial
+    // measurement, which replaces the old on-mount effect.
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    return () => {
+      observer.disconnect();
+      viewportRef.current = null;
+    };
+  };
 
   const maskImage = fadeMask(fadeTop, fadeBottom);
 

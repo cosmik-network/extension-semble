@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { openModeStore, type OpenMode } from "../openMode";
 
 /**
@@ -21,10 +21,10 @@ export function useOpenMode(): [OpenMode, (mode: OpenMode) => void] {
     };
   }, []);
 
-  const update = useCallback((next: OpenMode) => {
+  const update = (next: OpenMode) => {
     setMode(next); // optimistic; the watcher confirms
     void openModeStore().setValue(next);
-  }, []);
+  };
 
   return [mode, update];
 }
