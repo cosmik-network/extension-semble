@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
   Button,
@@ -13,7 +14,12 @@ import {
 import { isSupportedUrl } from "../../lib/activeTab";
 import { describeError } from "../../lib/errors";
 import { useApiKey, useSaveAllJob } from "../../lib/hooks";
-import { useMyCollections, useMyProfile, useUrlState } from "../../lib/queries";
+import {
+  queryKeys,
+  useMyCollections,
+  useMyProfile,
+  useUrlState,
+} from "../../lib/queries";
 import { dismissSaveAllJob, requestSaveAllRetry } from "../../lib/saveAllTabs";
 import { useActiveTabUrl } from "./hooks/useActiveTabUrl";
 import { AccountSettings } from "./components/AccountSettings";
@@ -36,6 +42,16 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
   const profile = useMyProfile();
   const hasKey = !!useApiKey();
   const saveAllJob = useSaveAllJob();
+  const queryClient = useQueryClient();
+
+  // A bulk save runs in the background, so the popup's cached URL state goes
+  // stale afterward (the main view would still show "Add to library").
+  // Dismissing the summary revalidates it, so the active tab reflects its new
+  // saved state when the main view returns.
+  function dismissSaveAll() {
+    dismissSaveAllJob();
+    void queryClient.invalidateQueries({ queryKey: queryKeys.urlState.all });
+  }
 
   const supported = isSupportedUrl(tabUrl.data ?? undefined);
   const url = supported ? tabUrl.data! : "";
@@ -117,7 +133,7 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
         <SaveAllProgress
           job={saveAllJob!}
           onRetry={requestSaveAllRetry}
-          onDismiss={dismissSaveAllJob}
+          onDismiss={dismissSaveAll}
         />
       ) : (
         <MainContent
