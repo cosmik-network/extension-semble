@@ -1,5 +1,6 @@
 import { browser } from "wxt/browser";
 import { isSupportedUrl } from "../lib/activeTab";
+import { describeError } from "../lib/errors";
 import { addToLibrary, isUrlInLibrary } from "../lib/library";
 import { getApiKey, initApiKey, subscribeApiKey } from "../lib/semble";
 import { BADGE_REFRESH_MESSAGE } from "../lib/badge";
@@ -159,8 +160,8 @@ export default defineBackground(() => {
         savedCache.set(url, true);
         if (tab?.id != null) await setBadge(tab.id, true);
         notify("Saved to Semble", url);
-      } catch {
-        notify("Couldn't save to Semble", "Please try again.");
+      } catch (err) {
+        notify("Couldn't save to Semble", describeError(err));
       }
     })();
   });

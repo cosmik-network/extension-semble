@@ -1,6 +1,17 @@
 import { useState } from "react";
-import { Alert, Button, Card, Center, Loader, Stack, Text } from "@mantine/core";
+import {
+  Alert,
+  Button,
+  Card,
+  Center,
+  Loader,
+  Stack,
+  Text,
+  useComputedColorScheme,
+} from "@mantine/core";
+import { useLocalStorage } from "@mantine/hooks";
 import { isSupportedUrl } from "../../lib/activeTab";
+import { describeError } from "../../lib/errors";
 import { useApiKey } from "../../lib/hooks";
 import { useMyCollections, useMyProfile, useUrlState } from "../../lib/queries";
 import { useActiveTabUrl } from "./hooks/useActiveTabUrl";
@@ -9,11 +20,18 @@ import { AppHeader } from "./components/AppHeader";
 import { MainTabs } from "./components/MainTabs";
 import { SearchTab } from "./components/SearchTab";
 import headerBg from "../../assets/semble-header-bg.webp";
+import headerBgDark from "../../assets/semble-header-bg-dark.webp";
 
 type Phase = "loading" | "no-key" | "unsupported" | "error" | "ready";
 
 function App() {
-  const [activeTab, setActiveTab] = useState("save");
+  // Persisted across popup opens so reopening lands on the last-used tab.
+  // Read synchronously to avoid a flash of the default "Manage" tab.
+  const [activeTab, setActiveTab] = useLocalStorage({
+    key: "semble:last-tab",
+    defaultValue: "save",
+    getInitialValueInEffect: false,
+  });
   const [searching, setSearching] = useState(false);
 
   const tabUrl = useActiveTabUrl();
@@ -117,8 +135,7 @@ function MainContent(props: MainContentProps) {
     return (
       <Stack gap="xs">
         <Alert color="red" variant="light">
-          {(urlState.error ?? collections.error)?.message ??
-            "Something went wrong."}
+          {describeError(urlState.error ?? collections.error)}
         </Alert>
         <Button
           variant="light"
@@ -148,6 +165,11 @@ function MainContent(props: MainContentProps) {
 
 /** Decorative banner pinned to the top, sitting under all the content. */
 function Banner() {
+  // getInitialValueInEffect: false so the first paint already matches the OS
+  // scheme (no light-image flash before hydration).
+  const scheme = useComputedColorScheme("light", {
+    getInitialValueInEffect: false,
+  });
   return (
     <div
       aria-hidden
@@ -158,7 +180,7 @@ function Banner() {
         right: 0,
         height: 76,
         zIndex: -1,
-        backgroundImage: `url(${headerBg})`,
+        backgroundImage: `url(${scheme === "dark" ? headerBgDark : headerBg})`,
         opacity: 0.7,
         // `cover` keeps the image's aspect ratio and crops the overflow.
         backgroundSize: "cover",

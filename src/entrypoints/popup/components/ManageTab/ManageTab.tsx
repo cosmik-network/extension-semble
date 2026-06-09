@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { BsTrash2Fill } from "react-icons/bs";
+import { describeError } from "../../../../lib/errors";
 import type { CollectionSummary, UrlState } from "../../../../lib/library";
 import {
   useAddToLibrary,
@@ -117,7 +118,7 @@ export function ManageTab(props: Props) {
     <Stack gap="sm" h="100%">
       {error && (
         <Alert color="red" variant="light">
-          {error.message}
+          {describeError(error)}
         </Alert>
       )}
 

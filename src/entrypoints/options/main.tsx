@@ -16,6 +16,7 @@ void initApiKey().then(() => {
       <QueryClientProvider client={queryClient}>
         <MantineProvider
           theme={theme}
+          defaultColorScheme="auto"
           cssVariablesResolver={v8CssVariablesResolver}
         >
           <App />

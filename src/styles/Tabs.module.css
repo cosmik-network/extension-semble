@@ -1,11 +1,11 @@
 .tab {
-    color: var(--mantine-color-dark-2); /* Inactive tab color */
+    color: var(--mantine-color-dimmed); /* Inactive tab — adapts to scheme */
 
     @mixin hover {
-        color: var(--mantine-color-dark-9);
+        color: var(--mantine-color-text);
     }
 }
 
 .tab[data-active] {
-    color: var(--mantine-color-dark-9); /* Active tab color */
+    color: var(--mantine-color-text); /* Active tab — adapts to scheme */
 }
