@@ -21,6 +21,12 @@ export function canUseSidePanel(): boolean {
   return !!sidePanelApi();
 }
 
+/** Opens the extension's side panel for a window. No-ops where unsupported. */
+export async function openSidePanel(windowId: number): Promise<void> {
+  const api = sidePanelApi();
+  if (api) await api.open({ windowId });
+}
+
 /**
  * Makes a toolbar-icon click open the side panel (when enabled) instead of the
  * popup. Pair with clearing the action popup. No-ops where unsupported.

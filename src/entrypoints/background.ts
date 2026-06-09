@@ -5,7 +5,16 @@ import { addToLibrary, isUrlInLibrary } from "../lib/library";
 import { getApiKey, initApiKey, subscribeApiKey } from "../lib/semble";
 import { BADGE_REFRESH_MESSAGE } from "../lib/badge";
 import { openModeItem, type OpenMode } from "../lib/openMode";
-import { setOpenPanelOnActionClick } from "../lib/sidepanel";
+import {
+  canUseSidePanel,
+  openSidePanel,
+  setOpenPanelOnActionClick,
+} from "../lib/sidepanel";
+import {
+  RETRY_SAVE_ALL_MESSAGE,
+  type SaveAllJob,
+  saveAllJobItem,
+} from "../lib/saveAllTabs";
 
 /** MV3 exposes `action`; MV2 (Firefox) exposes `browserAction`. */
 const action = browser.action ?? browser.browserAction;
@@ -91,6 +100,11 @@ const MENU_ITEMS = [
     title: "Save page with selection as note",
     contexts: ["selection"],
   },
+  {
+    id: "semble-save-window",
+    title: "Save all tabs in this window to Semble",
+    contexts: ["page"],
+  },
 ] as const;
 
 /** Returns true and notifies/opens options when no key is configured. */
@@ -121,6 +135,117 @@ async function applyOpenMode(mode: OpenMode): Promise<void> {
   }
 }
 
+// --- Save all tabs in this window -----------------------------------------
+
+/** Opens the popup or side panel (per the user's preference) to show progress. */
+async function openSurfaceForJob(windowId?: number): Promise<void> {
+  const mode = await openModeItem.getValue();
+  if (mode === "sidepanel" && canUseSidePanel() && windowId != null) {
+    await openSidePanel(windowId);
+    return;
+  }
+  // Best-effort; bound to the context-menu user gesture. If it can't open, the
+  // job still runs and notifies.
+  try {
+    await action.openPopup?.();
+  } catch {
+    // No focused window / not supported — ignore.
+  }
+}
+
+/** Persists the job, stamping the update time for the popup's staleness gate. */
+async function persistJob(job: SaveAllJob): Promise<void> {
+  job.updatedAt = Date.now();
+  await saveAllJobItem.setValue({ ...job });
+}
+
+/**
+ * Saves one URL into the job's tallies: skipped if already in the library,
+ * counted as saved on success, or recorded in `failedUrls` on error.
+ */
+async function saveUrlIntoJob(job: SaveAllJob, url: string): Promise<void> {
+  try {
+    const already = savedCache.get(url) ?? (await isUrlInLibrary(url));
+    if (already) {
+      job.alreadySaved++;
+    } else {
+      await addToLibrary({ url });
+      job.saved++;
+    }
+    savedCache.set(url, true);
+  } catch {
+    job.failedUrls.push(url);
+  }
+}
+
+/** Saves each URL in turn, persisting progress after every one. */
+async function saveEach(job: SaveAllJob, urls: string[]): Promise<void> {
+  for (const url of urls) {
+    await saveUrlIntoJob(job, url);
+    await persistJob(job);
+  }
+}
+
+/** Re-attempts the job's failed URLs once. */
+async function retryFailedUrls(job: SaveAllJob): Promise<void> {
+  if (job.failedUrls.length === 0) return;
+  const failed = job.failedUrls;
+  job.failedUrls = [];
+  await saveEach(job, failed);
+}
+
+/** Marks the job done, notifies, and refreshes the active tab's badge. */
+async function finishJob(job: SaveAllJob): Promise<void> {
+  job.status = "done";
+  await persistJob(job);
+
+  const parts = [`Saved ${job.saved}`];
+  if (job.alreadySaved > 0) parts.push(`${job.alreadySaved} already saved`);
+  if (job.failedUrls.length > 0) parts.push(`${job.failedUrls.length} failed`);
+  notify("Saved to Semble", parts.join(" · "));
+
+  void evaluateActiveTab(true);
+}
+
+/** Sweeps every saveable tab in the window into the library, showing progress. */
+async function startSaveAllTabs(windowId?: number): Promise<void> {
+  const existing = await saveAllJobItem.getValue();
+  if (existing?.status === "running") return;
+
+  await openSurfaceForJob(windowId);
+
+  const tabs = await browser.tabs.query(
+    windowId != null ? { windowId } : { currentWindow: true },
+  );
+  const urls = [...new Set(tabs.map((tab) => tab.url).filter(isSupportedUrl))];
+
+  const job: SaveAllJob = {
+    status: "running",
+    total: urls.length,
+    saved: 0,
+    alreadySaved: 0,
+    failedUrls: [],
+    updatedAt: Date.now(),
+  };
+  await persistJob(job);
+
+  await saveEach(job, urls);
+  await retryFailedUrls(job); // auto-retry failures once
+  await finishJob(job);
+}
+
+/** Retries the stored job's remaining failures (popup "Try again" button). */
+async function retrySaveAllFailures(): Promise<void> {
+  const stored = await saveAllJobItem.getValue();
+  if (!stored || stored.status === "running" || stored.failedUrls.length === 0) {
+    return;
+  }
+  const job: SaveAllJob = { ...stored, status: "running" };
+  await persistJob(job);
+  await retryFailedUrls(job);
+  await finishJob(job);
+}
+
 function createMenus(): void {
   browser.contextMenus.removeAll(() => {
     for (const item of MENU_ITEMS) {
@@ -144,6 +269,7 @@ export default defineBackground(() => {
   // Re-evaluate on login; clear stale state on logout.
   subscribeApiKey(() => {
     savedCache.clear();
+    void saveAllJobItem.setValue(null);
     void evaluateActiveTab(true);
   });
 
@@ -165,12 +291,21 @@ export default defineBackground(() => {
     if (message?.type === BADGE_REFRESH_MESSAGE) {
       void evaluateActiveTab(true);
     }
+    if (message?.type === RETRY_SAVE_ALL_MESSAGE) {
+      void retrySaveAllFailures();
+    }
   });
 
   // --- Context menus --------------------------------------------------------
   browser.runtime.onInstalled.addListener(createMenus);
 
   browser.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === "semble-save-window") {
+      if (!requireApiKey()) return;
+      void startSaveAllTabs(tab?.windowId);
+      return;
+    }
+
     const url =
       info.menuItemId === "semble-save-link"
         ? info.linkUrl

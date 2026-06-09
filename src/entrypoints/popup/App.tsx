@@ -12,14 +12,16 @@ import {
 } from "@mantine/core";
 import { isSupportedUrl } from "../../lib/activeTab";
 import { describeError } from "../../lib/errors";
-import { useApiKey } from "../../lib/hooks";
+import { useApiKey, useSaveAllJob } from "../../lib/hooks";
 import { useMyCollections, useMyProfile, useUrlState } from "../../lib/queries";
+import { dismissSaveAllJob, requestSaveAllRetry } from "../../lib/saveAllTabs";
 import { useActiveTabUrl } from "./hooks/useActiveTabUrl";
 import { AccountSettings } from "./components/AccountSettings";
 import { AppPreferences } from "./components/AppPreferences";
 import { ApiKeyForm } from "./components/ApiKeyForm";
 import { AppHeader } from "./components/AppHeader";
 import { MainTabs } from "./components/MainTabs";
+import { SaveAllProgress } from "./components/SaveAllProgress";
 import { SearchTab } from "./components/SearchTab";
 import headerBg from "../../assets/semble-header-bg.webp";
 import headerBgDark from "../../assets/semble-header-bg-dark.webp";
@@ -33,6 +35,7 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
   const tabUrl = useActiveTabUrl();
   const profile = useMyProfile();
   const hasKey = !!useApiKey();
+  const saveAllJob = useSaveAllJob();
 
   const supported = isSupportedUrl(tabUrl.data ?? undefined);
   const url = supported ? tabUrl.data! : "";
@@ -58,9 +61,12 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
   // and the search view share one height so it doesn't jump, while shorter
   // states (sign-in, unsupported, error) size to content.
   const sidepanel = surface === "sidepanel";
+  // A bulk save takes over the main view with its own progress UI.
+  const showProgress = !!saveAllJob && hasKey && view === "main";
   // Search shares the tall, scrollable height; settings sizes to its content.
   const fixedHeight =
     view === "search" ||
+    showProgress ||
     (view === "main" && (phase === "loading" || phase === "ready"));
 
   return (
@@ -107,6 +113,12 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
           <AccountSettings onCleared={() => setView("main")} />
           <AppPreferences />
         </Stack>
+      ) : showProgress ? (
+        <SaveAllProgress
+          job={saveAllJob!}
+          onRetry={requestSaveAllRetry}
+          onDismiss={dismissSaveAllJob}
+        />
       ) : (
         <MainContent
           phase={phase}
