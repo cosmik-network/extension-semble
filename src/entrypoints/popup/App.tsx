@@ -5,6 +5,7 @@ import {
   Card,
   Center,
   Loader,
+  Space,
   Stack,
   Text,
   useComputedColorScheme,
@@ -91,6 +92,8 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
         profile={profile.data}
         hasKey={hasKey}
       />
+
+      <Space h={"md"} />
 
       {view === "search" ? (
         <Stack gap="sm" style={{ flex: 1, minHeight: 0 }}>
