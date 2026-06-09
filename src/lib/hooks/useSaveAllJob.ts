@@ -14,12 +14,12 @@ export function useSaveAllJob(): SaveAllJob | null {
   const [job, setJob] = useState<SaveAllJob | null>(null);
 
   useEffect(() => {
-    const job = saveAllJobStore();
+    const store = saveAllJobStore();
     let active = true;
-    void job.getValue().then((value) => {
+    void store.getValue().then((value) => {
       if (active) setJob(value);
     });
-    const unwatch = job.watch((value) => setJob(value ?? null));
+    const unwatch = store.watch((value) => setJob(value ?? null));
     return () => {
       active = false;
       unwatch();

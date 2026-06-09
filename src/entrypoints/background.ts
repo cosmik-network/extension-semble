@@ -291,8 +291,7 @@ export default defineBackground(() => {
   browser.runtime.onMessage.addListener((message) => {
     if (message?.type === BADGE_REFRESH_MESSAGE) {
       void evaluateActiveTab(true);
-    }
-    if (message?.type === RETRY_SAVE_ALL_MESSAGE) {
+    } else if (message?.type === RETRY_SAVE_ALL_MESSAGE) {
       void retrySaveAllFailures();
     }
   });

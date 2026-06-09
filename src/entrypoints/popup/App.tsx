@@ -115,7 +115,7 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
         hasKey={hasKey}
       />
 
-      <Space h={"md"} />
+      <Space h="md" />
 
       {view === "search" ? (
         <Stack gap="sm" style={{ flex: 1, minHeight: 0 }}>
