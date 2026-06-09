@@ -1,4 +1,5 @@
 import { Card, Stack, Tabs } from "@mantine/core";
+import { useLocalStorage } from "@mantine/hooks";
 import type { CollectionSummary, UrlState } from "../../../../lib/library";
 import { UrlCard } from "../UrlCard";
 import { ManageTab } from "../ManageTab";
@@ -9,17 +10,22 @@ interface MainTabsProps {
   url: string;
   urlState: UrlState;
   collections: CollectionSummary[];
-  activeTab: string;
-  onTabChange: (value: string) => void;
 }
 
 const PANEL_STYLE = { flex: 1, minHeight: 0 } as const;
 
 /**
  * The signed-in view for a supported page: the URL preview card plus the
- * Manage / Related / Connections tabs.
+ * Manage / Related / Connections tabs. Persists the last-used tab across popup
+ * opens.
  */
 export function MainTabs(props: MainTabsProps) {
+  const [activeTab, setActiveTab] = useLocalStorage({
+    key: "semble:last-tab",
+    defaultValue: "save",
+    getInitialValueInEffect: false,
+  });
+
   return (
     <Stack gap="sm" style={PANEL_STYLE}>
       {/* Fixed header — sits over the banner background. */}
@@ -31,8 +37,8 @@ export function MainTabs(props: MainTabsProps) {
       </Card>
 
       <Tabs
-        value={props.activeTab}
-        onChange={(value) => props.onTabChange(value ?? "save")}
+        value={activeTab}
+        onChange={(value) => setActiveTab(value ?? "save")}
         style={{
           flex: 1,
           minHeight: 0,
@@ -58,14 +64,11 @@ export function MainTabs(props: MainTabsProps) {
         </Tabs.Panel>
 
         <Tabs.Panel value="related" pt="sm" keepMounted style={PANEL_STYLE}>
-          <RelatedTab url={props.url} active={props.activeTab === "related"} />
+          <RelatedTab url={props.url} active={activeTab === "related"} />
         </Tabs.Panel>
 
         <Tabs.Panel value="connections" pt="sm" keepMounted style={PANEL_STYLE}>
-          <ConnectionsTab
-            url={props.url}
-            active={props.activeTab === "connections"}
-          />
+          <ConnectionsTab url={props.url} active={activeTab === "connections"} />
         </Tabs.Panel>
       </Tabs>
     </Stack>

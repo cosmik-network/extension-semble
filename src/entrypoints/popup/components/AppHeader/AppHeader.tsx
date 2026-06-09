@@ -1,13 +1,17 @@
 import { ActionIcon, Group, Tooltip } from "@mantine/core";
-import { FiArrowLeft, FiSearch } from "react-icons/fi";
+import { FiArrowLeft, FiSearch, FiSidebar } from "react-icons/fi";
 import type { MyProfile } from "../../../../lib/library";
+import { canUseSidePanel, openSidePanel } from "../../../../lib/sidepanel";
 import { ProfileMenu, ProfileMenuSkeleton } from "../ProfileMenu";
 import sembleLogo from "../../../../assets/semble.svg";
 
 interface AppHeaderProps {
-  /** Whether the search view is open. */
-  searching: boolean;
+  /** Which surface the app is rendered in; the side panel hides "expand". */
+  surface: "popup" | "sidepanel";
+  /** Which top-level view is open. */
+  view: "main" | "search" | "settings";
   onOpenSearch: () => void;
+  onOpenSettings: () => void;
   onBack: () => void;
   profile?: MyProfile;
   /** Whether an API key is configured (controls the signed-out skeleton). */
@@ -15,10 +19,12 @@ interface AppHeaderProps {
 }
 
 /**
- * Top bar over the banner: the Semble logo (or a back arrow while searching) on
- * the left; the search action and profile menu on the right.
+ * Top bar over the banner: the Semble logo (or a back arrow in a sub-view) on
+ * the left; the search/side-panel actions and profile menu on the right.
  */
 export function AppHeader(props: AppHeaderProps) {
+  const isMain = props.view === "main";
+
   return (
     <Group
       justify="space-between"
@@ -27,7 +33,7 @@ export function AppHeader(props: AppHeaderProps) {
       mb="lg"
       style={{ flexShrink: 0 }}
     >
-      {props.searching ? (
+      {!isMain ? (
         <ActionIcon
           variant="subtle"
           color="gray"
@@ -49,23 +55,46 @@ export function AppHeader(props: AppHeaderProps) {
         </a>
       )}
 
-      <Group gap="xs" wrap="nowrap">
+      <Group gap="md" wrap="nowrap">
         {props.profile ? (
           <>
-            {!props.searching && (
-              <Tooltip label="Search Semble">
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  radius="xl"
-                  aria-label="Search"
-                  onClick={props.onOpenSearch}
-                >
-                  <FiSearch size={18} />
-                </ActionIcon>
-              </Tooltip>
-            )}
-            <ProfileMenu profile={props.profile} />
+            {/* Search + side panel grouped tightly, apart from the avatar. */}
+            <Group gap="xxs" wrap="nowrap">
+              {isMain && (
+                <Tooltip label="Search Semble">
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    radius="xl"
+                    aria-label="Search"
+                    onClick={props.onOpenSearch}
+                  >
+                    <FiSearch size={18} />
+                  </ActionIcon>
+                </Tooltip>
+              )}
+              {props.surface === "popup" &&
+                isMain &&
+                canUseSidePanel() && (
+                  <Tooltip label="Open in side panel">
+                    <ActionIcon
+                      variant="subtle"
+                      color="gray"
+                      radius="xl"
+                      aria-label="Open in side panel"
+                      onClick={() =>
+                        void openSidePanel().then(() => window.close())
+                      }
+                    >
+                      <FiSidebar size={18} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+            </Group>
+            <ProfileMenu
+              profile={props.profile}
+              onOpenSettings={props.onOpenSettings}
+            />
           </>
         ) : (
           // No avatar while signed out — the sign-in form is the content.

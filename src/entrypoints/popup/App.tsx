@@ -9,12 +9,12 @@ import {
   Text,
   useComputedColorScheme,
 } from "@mantine/core";
-import { useLocalStorage } from "@mantine/hooks";
 import { isSupportedUrl } from "../../lib/activeTab";
 import { describeError } from "../../lib/errors";
 import { useApiKey } from "../../lib/hooks";
 import { useMyCollections, useMyProfile, useUrlState } from "../../lib/queries";
 import { useActiveTabUrl } from "./hooks/useActiveTabUrl";
+import { AccountSettings } from "./components/AccountSettings";
 import { ApiKeyForm } from "./components/ApiKeyForm";
 import { AppHeader } from "./components/AppHeader";
 import { MainTabs } from "./components/MainTabs";
@@ -24,15 +24,9 @@ import headerBgDark from "../../assets/semble-header-bg-dark.webp";
 
 type Phase = "loading" | "no-key" | "unsupported" | "error" | "ready";
 
-function App() {
-  // Persisted across popup opens so reopening lands on the last-used tab.
-  // Read synchronously to avoid a flash of the default "Manage" tab.
-  const [activeTab, setActiveTab] = useLocalStorage({
-    key: "semble:last-tab",
-    defaultValue: "save",
-    getInitialValueInEffect: false,
-  });
-  const [searching, setSearching] = useState(false);
+function App(props: { surface?: "popup" | "sidepanel" }) {
+  const surface = props.surface ?? "popup";
+  const [view, setView] = useState<"main" | "search" | "settings">("main");
 
   const tabUrl = useActiveTabUrl();
   const profile = useMyProfile();
@@ -58,15 +52,20 @@ function App() {
             : "ready";
 
   // A definite height is required for the inner scroll regions to bound and
-  // scroll. Loading/ready and the search view share one height so the popup
-  // doesn't jump; shorter states (sign-in, unsupported, error) size to content.
-  const fixedHeight = searching || phase === "loading" || phase === "ready";
+  // scroll. The side panel always fills its window; in the popup, loading/ready
+  // and the search view share one height so it doesn't jump, while shorter
+  // states (sign-in, unsupported, error) size to content.
+  const sidepanel = surface === "sidepanel";
+  // Search shares the tall, scrollable height; settings sizes to its content.
+  const fixedHeight =
+    view === "search" ||
+    (view === "main" && (phase === "loading" || phase === "ready"));
 
   return (
     <Card
-      w={360}
+      w={sidepanel ? "100%" : 360}
       p="xs"
-      radius="xs"
+      radius={sidepanel ? 0 : "xs"}
       style={{
         position: "relative",
         // Own stacking context so the banner's negative z-index stays scoped
@@ -74,22 +73,31 @@ function App() {
         zIndex: 0,
         display: "flex",
         flexDirection: "column",
-        height: fixedHeight ? 590 : undefined,
+        height: sidepanel ? "100vh" : fixedHeight ? 590 : undefined,
       }}
     >
       <Banner />
 
       <AppHeader
-        searching={searching}
-        onOpenSearch={() => setSearching(true)}
-        onBack={() => setSearching(false)}
+        surface={surface}
+        view={view}
+        onOpenSearch={() => setView("search")}
+        onOpenSettings={() => setView("settings")}
+        onBack={() => setView("main")}
         profile={profile.data}
         hasKey={hasKey}
       />
 
-      {searching ? (
+      {view === "search" ? (
         <Stack gap="sm" style={{ flex: 1, minHeight: 0 }}>
           <SearchTab active />
+        </Stack>
+      ) : view === "settings" && hasKey ? (
+        <Stack gap="sm">
+          <Text fw={600} fz="lg">
+            Settings
+          </Text>
+          <AccountSettings onCleared={() => setView("main")} />
         </Stack>
       ) : (
         <MainContent
@@ -97,8 +105,6 @@ function App() {
           url={url}
           urlState={urlState}
           collections={collections}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
         />
       )}
     </Card>
@@ -110,8 +116,6 @@ interface MainContentProps {
   url: string;
   urlState: ReturnType<typeof useUrlState>;
   collections: ReturnType<typeof useMyCollections>;
-  activeTab: string;
-  onTabChange: (value: string) => void;
 }
 
 /** The non-search ("main") body: one block per {@link Phase}. */
@@ -157,8 +161,6 @@ function MainContent(props: MainContentProps) {
       url={props.url}
       urlState={urlState.data}
       collections={collections.data}
-      activeTab={props.activeTab}
-      onTabChange={props.onTabChange}
     />
   );
 }

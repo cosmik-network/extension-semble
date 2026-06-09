@@ -6,7 +6,6 @@ import {
   Text,
   UnstyledButton,
 } from "@mantine/core";
-import { browser } from "wxt/browser";
 import type { MyProfile } from "../../../../lib/library";
 import { queryClient } from "../../../../lib/queryClient";
 import { clearApiKey } from "../../../../lib/semble";
@@ -15,7 +14,10 @@ import { clearApiKey } from "../../../../lib/semble";
  * Header avatar that opens a profile menu: profile link, settings, log out.
  * Mirrors the web app's ProfileMenu styling.
  */
-export function ProfileMenu(props: { profile: MyProfile }) {
+export function ProfileMenu(props: {
+  profile: MyProfile;
+  onOpenSettings: () => void;
+}) {
   const { profile } = props;
 
   async function handleLogout() {
@@ -57,10 +59,7 @@ export function ProfileMenu(props: { profile: MyProfile }) {
 
         <Menu.Divider />
 
-        <Menu.Item
-          color="gray"
-          onClick={() => void browser.runtime.openOptionsPage()}
-        >
+        <Menu.Item color="gray" onClick={props.onOpenSettings}>
           Settings
         </Menu.Item>
 

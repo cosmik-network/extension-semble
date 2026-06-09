@@ -91,6 +91,14 @@ const MENU_ITEMS = [
   },
 ] as const;
 
+/** Returns true and notifies/opens options when no key is configured. */
+function requireApiKey(): boolean {
+  if (getApiKey()) return true;
+  notify("Sign in to Semble", "Add your API key to start saving.");
+  void browser.runtime.openOptionsPage();
+  return false;
+}
+
 function createMenus(): void {
   browser.contextMenus.removeAll(() => {
     for (const item of MENU_ITEMS) {
@@ -148,11 +156,7 @@ export default defineBackground(() => {
         ? info.selectionText
         : undefined;
 
-    if (!getApiKey()) {
-      notify("Sign in to Semble", "Add your API key to start saving.");
-      void browser.runtime.openOptionsPage();
-      return;
-    }
+    if (!requireApiKey()) return;
 
     void (async () => {
       try {
