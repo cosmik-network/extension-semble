@@ -19,6 +19,7 @@ function ModeOption(props: ModeOptionProps) {
   return (
     <UnstyledButton
       role="radio"
+      p={"xs"}
       aria-checked={props.checked}
       data-checked={props.checked || undefined}
       className={classes.option}
