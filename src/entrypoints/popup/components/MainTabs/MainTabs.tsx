@@ -1,4 +1,4 @@
-import { Card, Stack, Tabs } from "@mantine/core";
+import { Card, Scroller, Stack, Tabs } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import type { CollectionSummary, UrlState } from "../../../../lib/library";
 import { UrlCard } from "../UrlCard";
@@ -13,6 +13,9 @@ interface MainTabsProps {
 }
 
 const PANEL_STYLE = { flex: 1, minHeight: 0 } as const;
+// Each tab grows to share the width equally, but never shrinks below its label
+// (min-width: auto) — so when they don't all fit, the Scroller scrolls instead.
+const TAB_STYLE = { flex: 1 } as const;
 
 /**
  * The signed-in view for a supported page: the URL preview card plus the
@@ -46,10 +49,24 @@ export function MainTabs(props: MainTabsProps) {
           flexDirection: "column",
         }}
       >
-        <Tabs.List grow>
-          <Tabs.Tab value="save">Manage</Tabs.Tab>
-          <Tabs.Tab value="related">Related</Tabs.Tab>
-          <Tabs.Tab value="connections">Connections</Tabs.Tab>
+        {/* Scroller inside the list (mirrors the semble web app): the tab strip
+            scrolls horizontally instead of wrapping when labels don't fit. The
+            content stretches to full width so the tabs can grow to fill it. */}
+        <Tabs.List style={{ flexWrap: "nowrap" }}>
+          <Scroller
+            style={{ flex: 1, minWidth: 0 }}
+            styles={{ content: { display: "flex", minWidth: "100%" } }}
+          >
+            <Tabs.Tab value="save" style={TAB_STYLE}>
+              Manage
+            </Tabs.Tab>
+            <Tabs.Tab value="related" style={TAB_STYLE}>
+              Related
+            </Tabs.Tab>
+            <Tabs.Tab value="connections" style={TAB_STYLE}>
+              Connections
+            </Tabs.Tab>
+          </Scroller>
         </Tabs.List>
 
         <Tabs.Panel value="save" pt="sm" style={PANEL_STYLE}>
