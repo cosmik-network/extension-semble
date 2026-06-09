@@ -20,10 +20,22 @@ export interface SaveAllJob {
   updatedAt: number;
 }
 
-export const saveAllJobItem = storage.defineItem<SaveAllJob | null>(
-  "local:saveAllJob",
-  { fallback: null },
-);
+function createStore() {
+  return storage.defineItem<SaveAllJob | null>("local:saveAllJob", {
+    fallback: null,
+  });
+}
+
+let store: ReturnType<typeof createStore> | undefined;
+
+/**
+ * The job's storage item, created on first use. Lazy because `defineItem`
+ * eagerly reads storage, which throws during WXT's build-time entrypoint
+ * analysis (no `browser.storage` there). See wxt-dev/wxt#371.
+ */
+export function saveAllJobStore() {
+  return (store ??= createStore());
+}
 
 export const RETRY_SAVE_ALL_MESSAGE = "semble:save-all-retry";
 
@@ -41,5 +53,5 @@ export function requestSaveAllRetry(): void {
 
 /** Clears the job (popup writes storage directly; no background round-trip). */
 export function dismissSaveAllJob(): void {
-  void saveAllJobItem.setValue(null);
+  void saveAllJobStore().setValue(null);
 }

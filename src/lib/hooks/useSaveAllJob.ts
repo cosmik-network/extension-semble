@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type SaveAllJob, saveAllJobItem } from "../saveAllTabs";
+import { type SaveAllJob, saveAllJobStore } from "../saveAllTabs";
 
 /** A "done" job older than this is treated as dismissed. */
 const STALE_DONE_MS = 120_000;
@@ -14,11 +14,12 @@ export function useSaveAllJob(): SaveAllJob | null {
   const [job, setJob] = useState<SaveAllJob | null>(null);
 
   useEffect(() => {
+    const job = saveAllJobStore();
     let active = true;
-    void saveAllJobItem.getValue().then((value) => {
+    void job.getValue().then((value) => {
       if (active) setJob(value);
     });
-    const unwatch = saveAllJobItem.watch((value) => setJob(value ?? null));
+    const unwatch = job.watch((value) => setJob(value ?? null));
     return () => {
       active = false;
       unwatch();

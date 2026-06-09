@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { openModeItem, type OpenMode } from "../openMode";
+import { openModeStore, type OpenMode } from "../openMode";
 
 /**
  * Reads and writes the popup-vs-side-panel open preference from extension
@@ -9,11 +9,12 @@ export function useOpenMode(): [OpenMode, (mode: OpenMode) => void] {
   const [mode, setMode] = useState<OpenMode>("popup");
 
   useEffect(() => {
+    const item = openModeStore();
     let active = true;
-    void openModeItem.getValue().then((value) => {
+    void item.getValue().then((value) => {
       if (active) setMode(value);
     });
-    const unwatch = openModeItem.watch((value) => setMode(value ?? "popup"));
+    const unwatch = item.watch((value) => setMode(value ?? "popup"));
     return () => {
       active = false;
       unwatch();
@@ -22,7 +23,7 @@ export function useOpenMode(): [OpenMode, (mode: OpenMode) => void] {
 
   const update = useCallback((next: OpenMode) => {
     setMode(next); // optimistic; the watcher confirms
-    void openModeItem.setValue(next);
+    void openModeStore().setValue(next);
   }, []);
 
   return [mode, update];

@@ -4,7 +4,7 @@ import { describeError } from "../lib/errors";
 import { addToLibrary, isUrlInLibrary } from "../lib/library";
 import { getApiKey, initApiKey, subscribeApiKey } from "../lib/semble";
 import { BADGE_REFRESH_MESSAGE } from "../lib/badge";
-import { openModeItem, type OpenMode } from "../lib/openMode";
+import { openModeStore, type OpenMode } from "../lib/openMode";
 import {
   canUseSidePanel,
   openSidePanel,
@@ -13,7 +13,7 @@ import {
 import {
   RETRY_SAVE_ALL_MESSAGE,
   type SaveAllJob,
-  saveAllJobItem,
+  saveAllJobStore,
 } from "../lib/saveAllTabs";
 
 /** MV3 exposes `action`; MV2 (Firefox) exposes `browserAction`. */
@@ -139,7 +139,7 @@ async function applyOpenMode(mode: OpenMode): Promise<void> {
 
 /** Opens the popup or side panel (per the user's preference) to show progress. */
 async function openSurfaceForJob(windowId?: number): Promise<void> {
-  const mode = await openModeItem.getValue();
+  const mode = await openModeStore().getValue();
   if (mode === "sidepanel" && canUseSidePanel() && windowId != null) {
     await openSidePanel(windowId);
     return;
@@ -156,7 +156,7 @@ async function openSurfaceForJob(windowId?: number): Promise<void> {
 /** Persists the job, stamping the update time for the popup's staleness gate. */
 async function persistJob(job: SaveAllJob): Promise<void> {
   job.updatedAt = Date.now();
-  await saveAllJobItem.setValue({ ...job });
+  await saveAllJobStore().setValue({ ...job });
 }
 
 /**
@@ -209,7 +209,7 @@ async function finishJob(job: SaveAllJob): Promise<void> {
 
 /** Sweeps every saveable tab in the window into the library, showing progress. */
 async function startSaveAllTabs(windowId?: number): Promise<void> {
-  const existing = await saveAllJobItem.getValue();
+  const existing = await saveAllJobStore().getValue();
   if (existing?.status === "running") return;
 
   await openSurfaceForJob(windowId);
@@ -236,7 +236,7 @@ async function startSaveAllTabs(windowId?: number): Promise<void> {
 
 /** Retries the stored job's remaining failures (popup "Try again" button). */
 async function retrySaveAllFailures(): Promise<void> {
-  const stored = await saveAllJobItem.getValue();
+  const stored = await saveAllJobStore().getValue();
   if (!stored || stored.status === "running" || stored.failedUrls.length === 0) {
     return;
   }
@@ -263,13 +263,14 @@ export default defineBackground(() => {
   void initApiKey().then(() => evaluateActiveTab());
 
   // Apply the popup/side-panel open preference, and react to changes.
-  void openModeItem.getValue().then(applyOpenMode);
-  openModeItem.watch((mode) => void applyOpenMode(mode ?? "popup"));
+  const openMode = openModeStore();
+  void openMode.getValue().then(applyOpenMode);
+  openMode.watch((mode) => void applyOpenMode(mode ?? "popup"));
 
   // Re-evaluate on login; clear stale state on logout.
   subscribeApiKey(() => {
     savedCache.clear();
-    void saveAllJobItem.setValue(null);
+    void saveAllJobStore().setValue(null);
     void evaluateActiveTab(true);
   });
 
