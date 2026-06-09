@@ -18,7 +18,7 @@ import { clearApiKey } from "../../../../lib/semble";
 
 /**
  * Connected-account settings: the signed-in profile plus the masked API key,
- * with actions to replace or clear it. Shared by the options page and the
+ * with actions to replace it or log out. Shared by the options page and the
  * in-popup settings view. `onCleared` fires after the key is removed so the
  * popup can return to its main view.
  */
@@ -76,16 +76,25 @@ export function AccountSettings(props: { onCleared?: () => void }) {
       {replacing ? (
         <KeyForm
           submitLabel="Replace key"
+          placeholder="Add your new API key"
           onDone={() => setReplacing(false)}
           onCancel={() => setReplacing(false)}
         />
       ) : (
         <Group gap="xs">
-          <Button variant="light" onClick={() => setReplacing(true)}>
+          <Button
+            variant="light"
+            color="gray"
+            onClick={() => setReplacing(true)}
+          >
             Replace key
           </Button>
-          <Button variant="light" color="red" onClick={() => void handleClear()}>
-            Clear key
+          <Button
+            variant="subtle"
+            color="red"
+            onClick={() => void handleClear()}
+          >
+            Log out
           </Button>
         </Group>
       )}
@@ -99,6 +108,7 @@ export function AccountSettings(props: { onCleared?: () => void }) {
  */
 export function KeyForm(props: {
   submitLabel: string;
+  placeholder?: string;
   onDone?: () => void;
   onCancel?: () => void;
 }) {
@@ -130,7 +140,7 @@ export function KeyForm(props: {
           name="key"
           value={key}
           onChange={(e) => setKey(e.currentTarget.value)}
-          placeholder="sk_..."
+          placeholder={props.placeholder ?? "Add your API key"}
           aria-label="Semble API key"
           autoFocus
           data-autofocus

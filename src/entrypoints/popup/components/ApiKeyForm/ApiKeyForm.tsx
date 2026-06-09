@@ -60,7 +60,7 @@ export function ApiKeyForm() {
           name="key"
           value={key}
           onChange={(e) => setKey(e.currentTarget.value)}
-          placeholder="sk_..."
+          placeholder="Add your API key"
           aria-label="Semble API key"
           autoFocus
           data-autofocus
