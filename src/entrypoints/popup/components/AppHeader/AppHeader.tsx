@@ -1,5 +1,6 @@
 import { ActionIcon, Group, Tooltip } from "@mantine/core";
 import { FiArrowLeft, FiSearch } from "react-icons/fi";
+import { TbSettings } from "react-icons/tb";
 import type { MyProfile } from "../../../../lib/library";
 import { ProfileMenu, ProfileMenuSkeleton } from "../ProfileMenu";
 import sembleLogo from "../../../../assets/semble.svg";
@@ -17,7 +18,7 @@ interface AppHeaderProps {
 
 /**
  * Top bar over the banner: the Semble logo (or a back arrow in a sub-view) on
- * the left; the search action and profile menu on the right.
+ * the left; the search/settings actions and profile menu on the right.
  */
 export function AppHeader(props: AppHeaderProps) {
   const isMain = props.view === "main";
@@ -55,23 +56,35 @@ export function AppHeader(props: AppHeaderProps) {
       <Group gap="md" wrap="nowrap">
         {props.profile ? (
           <>
-            {isMain && (
-              <Tooltip label="Search Semble">
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  radius="xl"
-                  aria-label="Search"
-                  onClick={props.onOpenSearch}
-                >
-                  <FiSearch size={18} />
-                </ActionIcon>
-              </Tooltip>
-            )}
-            <ProfileMenu
-              profile={props.profile}
-              onOpenSettings={props.onOpenSettings}
-            />
+            <Group gap="xxs" wrap="nowrap">
+              {isMain && (
+                <Tooltip label="Search Semble">
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    radius="xl"
+                    aria-label="Search"
+                    onClick={props.onOpenSearch}
+                  >
+                    <FiSearch size={18} />
+                  </ActionIcon>
+                </Tooltip>
+              )}
+              {props.view !== "settings" && (
+                <Tooltip label="Settings">
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    radius="xl"
+                    aria-label="Settings"
+                    onClick={props.onOpenSettings}
+                  >
+                    <TbSettings size={18} />
+                  </ActionIcon>
+                </Tooltip>
+              )}
+            </Group>
+            <ProfileMenu profile={props.profile} />
           </>
         ) : (
           // No avatar while signed out — the sign-in form is the content.
