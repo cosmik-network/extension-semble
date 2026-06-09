@@ -1,6 +1,7 @@
 import { Anchor, Card, Center, Stack, Text, Title } from "@mantine/core";
 import { useApiKey } from "../../lib/hooks";
 import { AccountSettings, KeyForm } from "../popup/components/AccountSettings";
+import { AppPreferences } from "../popup/components/AppPreferences";
 
 /** Extension settings page: view, set/replace, and clear the API key. */
 function App() {
@@ -11,7 +12,14 @@ function App() {
       <Card w={480} withBorder radius="lg" p="lg">
         <Stack gap="md">
           <Title order={3}>Semble Settings</Title>
-          {apiKey ? <AccountSettings /> : <SetupView />}
+          {apiKey ? (
+            <>
+              <AccountSettings />
+              <AppPreferences />
+            </>
+          ) : (
+            <SetupView />
+          )}
         </Stack>
       </Card>
     </Center>

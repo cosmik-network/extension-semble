@@ -4,6 +4,8 @@ import { describeError } from "../lib/errors";
 import { addToLibrary, isUrlInLibrary } from "../lib/library";
 import { getApiKey, initApiKey, subscribeApiKey } from "../lib/semble";
 import { BADGE_REFRESH_MESSAGE } from "../lib/badge";
+import { openModeItem, type OpenMode } from "../lib/openMode";
+import { setOpenPanelOnActionClick } from "../lib/sidepanel";
 
 /** MV3 exposes `action`; MV2 (Firefox) exposes `browserAction`. */
 const action = browser.action ?? browser.browserAction;
@@ -99,6 +101,26 @@ function requireApiKey(): boolean {
   return false;
 }
 
+/**
+ * Routes toolbar-icon clicks to the popup or the side panel per the user's
+ * preference. Side-panel mode clears the action popup and asks Chrome to open
+ * the panel on click; popup mode restores the default popup.
+ */
+async function applyOpenMode(mode: OpenMode): Promise<void> {
+  const manifest = browser.runtime.getManifest() as {
+    action?: { default_popup?: string };
+  };
+  const defaultPopup = manifest.action?.default_popup ?? "popup.html";
+
+  if (mode === "sidepanel") {
+    await action.setPopup({ popup: "" });
+    await setOpenPanelOnActionClick(true);
+  } else {
+    await action.setPopup({ popup: defaultPopup });
+    await setOpenPanelOnActionClick(false);
+  }
+}
+
 function createMenus(): void {
   browser.contextMenus.removeAll(() => {
     for (const item of MENU_ITEMS) {
@@ -114,6 +136,10 @@ function createMenus(): void {
 export default defineBackground(() => {
   // Load the stored key (and keep it fresh) before any API call.
   void initApiKey().then(() => evaluateActiveTab());
+
+  // Apply the popup/side-panel open preference, and react to changes.
+  void openModeItem.getValue().then(applyOpenMode);
+  openModeItem.watch((mode) => void applyOpenMode(mode ?? "popup"));
 
   // Re-evaluate on login; clear stale state on logout.
   subscribeApiKey(() => {

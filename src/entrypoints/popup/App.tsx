@@ -15,6 +15,7 @@ import { useApiKey } from "../../lib/hooks";
 import { useMyCollections, useMyProfile, useUrlState } from "../../lib/queries";
 import { useActiveTabUrl } from "./hooks/useActiveTabUrl";
 import { AccountSettings } from "./components/AccountSettings";
+import { AppPreferences } from "./components/AppPreferences";
 import { ApiKeyForm } from "./components/ApiKeyForm";
 import { AppHeader } from "./components/AppHeader";
 import { MainTabs } from "./components/MainTabs";
@@ -79,7 +80,6 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
       <Banner />
 
       <AppHeader
-        surface={surface}
         view={view}
         onOpenSearch={() => setView("search")}
         onOpenSettings={() => setView("settings")}
@@ -93,11 +93,12 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
           <SearchTab active />
         </Stack>
       ) : view === "settings" && hasKey ? (
-        <Stack gap="sm">
+        <Stack gap="md">
           <Text fw={600} fz="lg">
             Settings
           </Text>
           <AccountSettings onCleared={() => setView("main")} />
+          <AppPreferences />
         </Stack>
       ) : (
         <MainContent
