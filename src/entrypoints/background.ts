@@ -85,7 +85,7 @@ const MENU_ITEMS = [
   { id: "semble-save-link", title: "Save link to Semble", contexts: ["link"] },
   {
     id: "semble-save-selection",
-    title: "Save selection as note",
+    title: "Save page with selection as note",
     contexts: ["selection"],
   },
 ] as const;
