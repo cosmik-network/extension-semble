@@ -75,6 +75,10 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
         display: "flex",
         flexDirection: "column",
         height: sidepanel ? "100vh" : fixedHeight ? 590 : undefined,
+        // Short, signed-in states (unsupported/error/settings) size to content,
+        // which can be too short for the profile-menu dropdown — reserve room so
+        // it opens downward instead of being clipped by the popup window.
+        minHeight: !sidepanel && !fixedHeight && profile.data ? 300 : undefined,
       }}
     >
       <Banner />
