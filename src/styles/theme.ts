@@ -14,7 +14,6 @@ import {
   Notification,
   Menu,
   SegmentedControl,
-  Anchor,
   Tabs,
 } from "@mantine/core";
 import tabsClasses from "./Tabs.module.css";

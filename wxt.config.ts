@@ -1,15 +1,15 @@
-import { defineConfig } from 'wxt';
+import { defineConfig } from "wxt";
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  srcDir: 'src',
-  modules: ['@wxt-dev/module-react', '@wxt-dev/auto-icons'],
+  srcDir: "src",
+  modules: ["@wxt-dev/module-react", "@wxt-dev/auto-icons"],
   autoIcons: {
-    baseIconPath: 'assets/icon.svg',
+    baseIconPath: "assets/icon.svg",
   },
   manifest: {
-    name: 'Semble',
-    permissions: ['tabs', 'storage', 'contextMenus', 'notifications'],
-    host_permissions: ['https://api.semble.so/*'],
+    name: "Semble",
+    permissions: ["tabs", "storage", "contextMenus", "notifications"],
+    host_permissions: ["https://api.semble.so/*"],
   },
 });
