@@ -32,7 +32,7 @@ function sameSet(a: string[], b: string[]): boolean {
 }
 
 /**
- * The "Manage" tab: pick collections, edit the note, save/remove. Holds the
+ * The Add/Update tab: pick collections, edit the note, save/remove. Holds the
  * local (unsaved) edits; `urlState` is the persisted server state. Mount with
  * `key={urlState.cardId}` so the edits reset when the card is added/removed.
  */

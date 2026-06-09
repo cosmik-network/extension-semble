@@ -19,8 +19,8 @@ const TAB_STYLE = { flex: 1 } as const;
 
 /**
  * The signed-in view for a supported page: the URL preview card plus the
- * Manage / Related / Connections tabs. Persists the last-used tab across popup
- * opens.
+ * Add-or-Update / Related / Connections tabs. Persists the last-used tab
+ * across popup opens.
  */
 export function MainTabs(props: MainTabsProps) {
   const [activeTab, setActiveTab] = useLocalStorage({
@@ -58,7 +58,7 @@ export function MainTabs(props: MainTabsProps) {
             styles={{ content: { display: "flex", minWidth: "100%" } }}
           >
             <Tabs.Tab value="save" style={TAB_STYLE}>
-              Manage
+              {props.urlState.cardId ? "Update" : "Add"}
             </Tabs.Tab>
             <Tabs.Tab value="related" style={TAB_STYLE}>
               Related
