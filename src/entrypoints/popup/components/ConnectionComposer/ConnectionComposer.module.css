@@ -1,0 +1,13 @@
+/* Clickable picker rows (search results / "Use this URL"): flat by default,
+   tinted on hover like the surrounding cards. */
+.option {
+    /* Padding is set via the component's p props — Mantine's UnstyledButton
+       reset (padding: 0) has equal specificity and would override it here. */
+    width: 100%;
+    border-radius: var(--mantine-radius-md);
+    transition: background-color 100ms ease;
+
+    &:hover {
+        background-color: var(--mantine-color-gray-light);
+    }
+}

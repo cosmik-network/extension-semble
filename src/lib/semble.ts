@@ -101,13 +101,16 @@ export function createClientFor(apiKey: string): SembleClient {
 
 /**
  * Awaits a client call and returns the response body. The client types only
- * declare the 200 response, but at runtime error statuses come back as plain
- * `{ status, body }` results — convert those to {@link SembleApiError}.
+ * declare the 200 response, but at runtime any status comes back as a plain
+ * `{ status, body }` result — treat the whole 2xx range as success (e.g.
+ * createConnection returns 201) and convert the rest to {@link SembleApiError}.
  */
 export async function unwrap<T>(
   call: Promise<{ status: number; body: T }>,
 ): Promise<T> {
   const res = await call;
-  if (res.status !== 200) throw new SembleApiError(res.status, res.body);
+  if (res.status < 200 || res.status >= 300) {
+    throw new SembleApiError(res.status, res.body);
+  }
   return res.body;
 }

@@ -219,7 +219,7 @@ function Banner() {
         height: 76,
         zIndex: -1,
         backgroundImage: `url(${scheme === "dark" ? headerBgDark : headerBg})`,
-        opacity: 0.7,
+        opacity: 0.5,
         // `cover` keeps the image's aspect ratio and crops the overflow.
         backgroundSize: "cover",
         backgroundPosition: "center top",

@@ -24,9 +24,22 @@ export function describeError(error: unknown): string {
     if (error.status >= 500) {
       return "Semble is having trouble right now. Try again shortly.";
     }
+    // Other 4xx (e.g. a validation rejection): the server's own message is
+    // usually specific and actionable, so prefer it over the generic copy.
+    const serverMessage = apiErrorMessage(error.body);
+    if (serverMessage) return serverMessage;
   }
 
   return "Something went wrong. Please try again.";
+}
+
+/** Pulls a `{ message }` string out of an API error body, when present. */
+function apiErrorMessage(body: unknown): string | undefined {
+  if (body && typeof body === "object" && "message" in body) {
+    const message = (body as { message: unknown }).message;
+    if (typeof message === "string" && message.trim()) return message;
+  }
+  return undefined;
 }
 
 /** Detects a dropped connection: the browser flag or a fetch network failure. */

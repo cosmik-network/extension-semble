@@ -25,6 +25,51 @@ export interface ConnectionsPage {
   hasMore: boolean;
 }
 
+/** The typed-link kinds accepted by the create endpoint. */
+export const CONNECTION_TYPES = [
+  "RELATED",
+  "SUPPORTS",
+  "OPPOSES",
+  "ADDRESSES",
+  "HELPFUL",
+  "LEADS_TO",
+  "EXPLAINER",
+  "SUPPLEMENT",
+] as const;
+
+export type ConnectionType = (typeof CONNECTION_TYPES)[number];
+
+export interface CreateConnectionInput {
+  sourceUrl: string;
+  targetUrl: string;
+  connectionType?: ConnectionType;
+  note?: string;
+}
+
+/**
+ * Creates a typed URL-to-URL connection. Both ends are raw URLs — the server
+ * resolves or creates the underlying records, so neither page needs to be in
+ * the library first. Returns the new connection's id.
+ */
+export async function createConnection(
+  input: CreateConnectionInput,
+): Promise<string> {
+  const note = input.note?.trim();
+  const body = await unwrap(
+    getClient().connections.createConnection({
+      body: {
+        sourceType: "URL",
+        sourceValue: input.sourceUrl,
+        targetType: "URL",
+        targetValue: input.targetUrl,
+        connectionType: input.connectionType,
+        note: note ? note : undefined,
+      },
+    }),
+  );
+  return body.connectionId;
+}
+
 /**
  * Lists connections where the given URL is either end, mapping each to the
  * page on its *other* end (so the UI shows what this page links to / from).
