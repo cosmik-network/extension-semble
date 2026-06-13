@@ -43,6 +43,16 @@ export function ManageTab(props: Props) {
   // Local, unsaved edits (server state lives in the urlState query).
   const [selectedIds, setSelectedIds] = useState(urlState.collectionIds);
   const [note, setNote] = useState(urlState.note);
+  // Summaries of collections we've seen (seeded from the saved ones), so the
+  // picker can render selected collections by name even when they aren't in the
+  // active tab's fetched list (e.g. open collections owned by someone else).
+  const [knownCollections, setKnownCollections] = useState(
+    () => new Map(urlState.collections.map((col) => [col.id, col])),
+  );
+
+  const selectedCollections = selectedIds
+    .map((id) => knownCollections.get(id))
+    .filter((col): col is CollectionSummary => !!col);
 
   const addToLibrary = useAddToLibrary();
   const updateCard = useUpdateCard();
@@ -62,15 +72,28 @@ export function ManageTab(props: Props) {
     note !== urlState.note ||
     !sameSet(selectedIds, urlState.collectionIds);
 
-  function handleToggle(id: string, checked: boolean) {
+  function handleToggle(collection: CollectionSummary, checked: boolean) {
+    setKnownCollections((prev) =>
+      prev.has(collection.id)
+        ? prev
+        : new Map(prev).set(collection.id, collection),
+    );
     setSelectedIds((prev) =>
-      checked ? [...prev, id] : prev.filter((x) => x !== id),
+      checked
+        ? [...prev, collection.id]
+        : prev.filter((x) => x !== collection.id),
     );
   }
 
-  async function handleCreateCollection(name: string) {
+  async function handleCreateCollection(
+    name: string,
+    accessType: "OPEN" | "CLOSED",
+  ) {
     try {
-      const id = await createCollection.mutateAsync(name);
+      const id = await createCollection.mutateAsync({ name, accessType });
+      setKnownCollections((prev) =>
+        new Map(prev).set(id, { id, name: name.trim(), accessType }),
+      );
       setSelectedIds((prev) => [...prev, id]);
     } catch {
       // Surfaced via createCollection.error.
@@ -127,6 +150,7 @@ export function ManageTab(props: Props) {
         <Stack gap="sm">
           <CollectionPicker
             collections={props.collections}
+            selectedCollections={selectedCollections}
             selectedIds={selectedIds}
             onToggle={handleToggle}
             onCreate={handleCreateCollection}

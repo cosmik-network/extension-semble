@@ -11,6 +11,6 @@ export function useCreateCollection() {
   return useMutation({
     mutationFn: createCollection,
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: queryKeys.collections }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.collections.all }),
   });
 }

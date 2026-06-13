@@ -13,7 +13,7 @@ export function useRemoveFromLibrary() {
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.urlState.all }),
         // Card counts changed.
-        queryClient.invalidateQueries({ queryKey: queryKeys.collections }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.collections.all }),
         // Search results' "Saved" badges no longer apply to this URL.
         queryClient.invalidateQueries({ queryKey: queryKeys.search.all }),
       ]);

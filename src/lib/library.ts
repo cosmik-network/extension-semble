@@ -8,10 +8,14 @@ export interface UrlMetadata {
   description?: string;
 }
 
+export type CollectionAccessType = "OPEN" | "CLOSED";
+
 export interface CollectionSummary {
   id: string;
   name: string;
-  cardCount: number;
+  cardCount?: number;
+  /** "OPEN" collections accept cards from anyone; "CLOSED" are personal. */
+  accessType?: CollectionAccessType;
 }
 
 export interface UrlState {
@@ -21,8 +25,14 @@ export interface UrlState {
   noteCardId?: string;
   metadata: UrlMetadata;
   note: string;
-  /** Ids of the user's collections that currently contain this URL. */
+  /** Ids of the collections that currently contain this URL. */
   collectionIds: string[];
+  /**
+   * Summaries of the collections that currently contain this URL (with names
+   * and access type) — used to render pre-selected collections that aren't in
+   * the picker's fetched lists (e.g. open collections owned by others).
+   */
+  collections: CollectionSummary[];
 }
 
 export interface SimilarUrl {
@@ -89,15 +99,55 @@ export async function validateAndSaveApiKey(key: string): Promise<MyProfile> {
   return profile;
 }
 
+/** Narrows an API collection to the summary fields the picker uses. */
+function toCollectionSummary(col: {
+  id: string;
+  name: string;
+  cardCount?: number;
+  accessType?: CollectionAccessType;
+}): CollectionSummary {
+  return {
+    id: col.id,
+    name: col.name,
+    cardCount: col.cardCount,
+    accessType: col.accessType,
+  };
+}
+
 export async function listMyCollections(): Promise<CollectionSummary[]> {
   const body = await unwrap(
     getClient().collections.myCollections({ query: { limit: 100 } }),
   );
-  return body.collections.map((col) => ({
-    id: col.id,
-    name: col.name,
-    cardCount: col.cardCount,
-  }));
+  return body.collections.map(toCollectionSummary);
+}
+
+/** Open collections the given user has contributed to (their id as identifier). */
+export async function listOpenContributedCollections(
+  identifier: string,
+): Promise<CollectionSummary[]> {
+  const body = await unwrap(
+    getClient().collections.openWithContributor({
+      query: { identifier, limit: 100 },
+    }),
+  );
+  return body.collections.map(toCollectionSummary);
+}
+
+/** Full-text collection search, optionally narrowed to an access type. */
+export async function searchCollections(input: {
+  searchText: string;
+  accessType?: CollectionAccessType;
+}): Promise<CollectionSummary[]> {
+  const body = await unwrap(
+    getClient().collections.searchCollections({
+      query: {
+        searchText: input.searchText.trim(),
+        accessType: input.accessType,
+        limit: 100,
+      },
+    }),
+  );
+  return body.collections.map(toCollectionSummary);
 }
 
 /**
@@ -117,7 +167,8 @@ export async function loadUrlState(url: string): Promise<UrlState> {
   const status = await unwrap(
     getClient().cards.urlLibraryStatus({ query: { url } }),
   );
-  const collectionIds = (status.collections ?? []).map((col) => col.id);
+  const collections = (status.collections ?? []).map(toCollectionSummary);
+  const collectionIds = collections.map((col) => col.id);
 
   if (status.card) {
     return {
@@ -125,6 +176,7 @@ export async function loadUrlState(url: string): Promise<UrlState> {
       noteCardId: status.card.note?.id,
       note: status.card.note?.text ?? "",
       collectionIds,
+      collections,
       metadata: toMetadata(status.card.cardContent),
     };
   }
@@ -136,6 +188,7 @@ export async function loadUrlState(url: string): Promise<UrlState> {
     noteCardId: undefined,
     note: "",
     collectionIds: [],
+    collections: [],
     metadata: toMetadata(meta.metadata),
   };
 }
@@ -204,10 +257,13 @@ export async function removeFromLibrary(cardId: string): Promise<void> {
 }
 
 /** Creates a collection and returns its id. */
-export async function createCollection(name: string): Promise<string> {
+export async function createCollection(input: {
+  name: string;
+  accessType?: CollectionAccessType;
+}): Promise<string> {
   const body = await unwrap(
     getClient().collections.createCollection({
-      body: { name: name.trim() },
+      body: { name: input.name.trim(), accessType: input.accessType },
     }),
   );
   return body.collectionId;

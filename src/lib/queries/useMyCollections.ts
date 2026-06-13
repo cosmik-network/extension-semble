@@ -6,7 +6,7 @@ import { queryKeys } from "./queryKeys";
 /** The user's collections. Disabled when no API key is configured. */
 export function useMyCollections() {
   return useQuery({
-    queryKey: queryKeys.collections,
+    queryKey: queryKeys.collections.my,
     queryFn: listMyCollections,
     enabled: !!getApiKey(),
   });

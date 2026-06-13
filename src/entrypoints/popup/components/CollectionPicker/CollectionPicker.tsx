@@ -1,135 +1,117 @@
 import { useState } from "react";
-import { FiPlus } from "react-icons/fi";
 import {
-  Button,
-  CheckboxCard,
-  CheckboxIndicator,
-  CloseButton,
+  ActionIcon,
   Group,
-  ScrollArea,
+  SegmentedControl,
   Stack,
-  Text,
-  TextInput,
+  ThemeIcon,
 } from "@mantine/core";
+import { FiSearch } from "react-icons/fi";
+import { FaSeedling } from "react-icons/fa";
 import type { CollectionSummary } from "../../../../lib/library";
-import { useScrollFade } from "../../hooks/useScrollFade";
-import classes from "./CollectionPicker.module.css";
+import { YourCollectionsTab } from "./YourCollectionsTab";
+import { OpenCollectionsTab } from "./OpenCollectionsTab";
 
 interface Props {
+  /** The user's own collections (the "My collections" scope). */
   collections: CollectionSummary[];
+  /** Summaries of every currently-selected collection (across both scopes). */
+  selectedCollections: CollectionSummary[];
   selectedIds: string[];
-  onToggle: (id: string, checked: boolean) => void;
-  onCreate: (name: string) => Promise<void>;
+  onToggle: (collection: CollectionSummary, checked: boolean) => void;
+  onCreate: (name: string, accessType: "OPEN" | "CLOSED") => Promise<void>;
 }
 
+type Scope = "your" | "open";
+
+function Seedling() {
+  return (
+    <ThemeIcon variant="light" radius="xl" size="xs" color="green">
+      <FaSeedling size={8} />
+    </ThemeIcon>
+  );
+}
+
+/**
+ * Picks the collections a URL belongs to. A segmented control switches the
+ * visible scope — "My collections" (the user's own) or "Open collections"
+ * (community collections anyone can add to) — defaulting to My collections,
+ * with a search toggle beside it. Selection and the search field are shared
+ * across scopes.
+ */
 export function CollectionPicker(props: Props) {
+  const [scope, setScope] = useState<Scope>("your");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [creating, setCreating] = useState(false);
 
-  const { setViewport, maskImage, updateFade } = useScrollFade();
+  function changeScope(value: string) {
+    setScope(value as Scope);
+    setSearch("");
+  }
 
-  const query = search.trim();
-  const filtered = props.collections.filter((c) =>
-    c.name.toLowerCase().includes(query.toLowerCase()),
-  );
-  const exactMatch = props.collections.some(
-    (c) => c.name.toLowerCase() === query.toLowerCase(),
-  );
-  const showCreate = query !== "" && !exactMatch;
-
-  async function handleCreate() {
-    if (!query || creating) return;
-    setCreating(true);
-    try {
-      await props.onCreate(query);
-      setSearch("");
-    } finally {
-      setCreating(false);
-    }
+  function toggleSearch() {
+    setSearchOpen((open) => {
+      if (open) setSearch(""); // clear the query when hiding the field
+      return !open;
+    });
   }
 
   return (
     <Stack gap="xs">
-      {/*<Text size="sm" fw={500}>
-        Collections
-      </Text>*/}
-
-      <TextInput
-        variant="filled"
-        size="sm"
-        placeholder="Search or create a collection…"
-        value={search}
-        rightSection={
-          <CloseButton
-            aria-label="Clear input"
-            onClick={() => setSearch("")}
-            style={{ display: search ? undefined : "none" }}
-          />
-        }
-        onChange={(e) => setSearch(e.currentTarget.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && showCreate) handleCreate();
-        }}
-      />
-
-      <ScrollArea.Autosize
-        mah={180}
-        viewportRef={setViewport}
-        onScrollPositionChange={updateFade}
-        styles={{
-          viewport: maskImage
-            ? { maskImage, WebkitMaskImage: maskImage }
-            : undefined,
-        }}
-      >
-        <Stack gap={"xxs"}>
-          {showCreate && (
-            <Button
-              variant="light"
-              color="grape"
-              size="sm"
-              fullWidth
-              justify="flex-start"
-              leftSection={<FiPlus />}
-              radius={"md"}
-              loading={creating}
-              onClick={handleCreate}
-            >
-              Create new collection “{query}”
-            </Button>
-          )}
-
-          {filtered.length === 0 && !showCreate && (
-            <Text size="xs" c="dimmed">
-              {props.collections.length === 0
-                ? "No collections yet."
-                : "No collections match."}
-            </Text>
-          )}
-
-          {filtered.map((col) => {
-            const checked = props.selectedIds.includes(col.id);
-            return (
-              <CheckboxCard
-                key={col.id}
-                className={classes.root}
-                p={"xs"}
-                radius={"lg"}
-                value={col.id}
-                checked={checked}
-                onChange={(value) => props.onToggle(col.id, value)}
-              >
-                <Group justify="space-between" wrap="nowrap" gap="xs">
-                  <Text size="sm" fw={500} lineClamp={1} flex={1}>
-                    {col.name}
-                  </Text>
-                  <CheckboxIndicator checked={checked} size="sm" />
+      <Group gap="xs" wrap="nowrap">
+        <SegmentedControl
+          size="sm"
+          radius="md"
+          value={scope}
+          onChange={changeScope}
+          style={{ flex: 1 }}
+          data={[
+            { value: "your", label: "My collections" },
+            {
+              value: "open",
+              label: (
+                <Group gap={6} wrap="nowrap" justify="center">
+                  <Seedling />
+                  Open collections
                 </Group>
-              </CheckboxCard>
-            );
-          })}
-        </Stack>
-      </ScrollArea.Autosize>
+              ),
+            },
+          ]}
+        />
+        <ActionIcon
+          variant={searchOpen ? "filled" : "light"}
+          color="gray"
+          size={36}
+          radius="md"
+          aria-label={searchOpen ? "Hide search" : "Search collections"}
+          onClick={toggleSearch}
+        >
+          <FiSearch size={16} />
+        </ActionIcon>
+      </Group>
+
+      {scope === "your" ? (
+        <YourCollectionsTab
+          collections={props.collections}
+          selectedCollections={props.selectedCollections}
+          selectedIds={props.selectedIds}
+          onToggle={props.onToggle}
+          onCreate={props.onCreate}
+          searchOpen={searchOpen}
+          search={search}
+          onSearchChange={setSearch}
+        />
+      ) : (
+        <OpenCollectionsTab
+          selectedCollections={props.selectedCollections}
+          selectedIds={props.selectedIds}
+          onToggle={props.onToggle}
+          onCreate={props.onCreate}
+          searchOpen={searchOpen}
+          search={search}
+          onSearchChange={setSearch}
+        />
+      )}
     </Stack>
   );
 }

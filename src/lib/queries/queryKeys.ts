@@ -1,4 +1,4 @@
-import type { UrlType } from "../library";
+import type { CollectionAccessType, UrlType } from "../library";
 
 /**
  * Centralized query keys so queries and mutations agree on what to cache and
@@ -7,7 +7,13 @@ import type { UrlType } from "../library";
  */
 export const queryKeys = {
   profile: ["profile"] as const,
-  collections: ["collections"] as const,
+  collections: {
+    all: ["collections"] as const,
+    my: ["collections", "my"] as const,
+    open: (identifier: string) => ["collections", "open", identifier] as const,
+    search: (searchText: string, accessType?: CollectionAccessType) =>
+      ["collections", "search", searchText, accessType ?? null] as const,
+  },
   urlState: {
     all: ["urlState"] as const,
     byUrl: (url: string) => ["urlState", url] as const,

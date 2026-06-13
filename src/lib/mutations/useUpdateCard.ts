@@ -13,7 +13,7 @@ export function useUpdateCard() {
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.urlState.all }),
         // Card counts changed.
-        queryClient.invalidateQueries({ queryKey: queryKeys.collections }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.collections.all }),
         // Note/collection changes are reflected in search results.
         queryClient.invalidateQueries({ queryKey: queryKeys.search.all }),
       ]);
