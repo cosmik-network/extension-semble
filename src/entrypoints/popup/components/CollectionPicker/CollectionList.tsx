@@ -56,7 +56,7 @@ function CollectionRow(props: {
       <Group justify="space-between" wrap="nowrap" gap="xs">
         <Group gap={6} wrap="nowrap" flex={1} miw={0}>
           {col.accessType === "OPEN" && (
-            <ThemeIcon variant="light" radius="xl" size="sm" color="green">
+            <ThemeIcon variant="light" radius="xl" size="xs" color="green">
               <FaSeedling size={10} />
             </ThemeIcon>
           )}
