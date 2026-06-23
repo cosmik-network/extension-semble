@@ -1,14 +1,18 @@
 import { useActionState, useState } from "react";
 import {
+  ActionIcon,
   Alert,
   Avatar,
   Button,
+  CopyButton,
   Group,
   PasswordInput,
   Skeleton,
   Stack,
   Text,
+  Tooltip,
 } from "@mantine/core";
+import { FiCheck, FiCopy, FiEye, FiEyeOff } from "react-icons/fi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiKey } from "../../../../lib/hooks";
 import { validateAndSaveApiKey } from "../../../../lib/library";
@@ -27,6 +31,7 @@ export function AccountSettings(props: { onCleared?: () => void }) {
   const queryClient = useQueryClient();
   const profile = useMyProfile();
   const [replacing, setReplacing] = useState(false);
+  const [keyVisible, setKeyVisible] = useState(false);
 
   async function handleClear() {
     await clearApiKey();
@@ -71,6 +76,45 @@ export function AccountSettings(props: { onCleared?: () => void }) {
         value={apiKey}
         readOnly
         description="Stored locally in this browser."
+        visible={keyVisible}
+        onVisibilityChange={setKeyVisible}
+        rightSectionWidth={68}
+        rightSection={
+          <Group gap={2} wrap="nowrap">
+            <Tooltip
+              label={keyVisible ? "Hide key" : "Show key"}
+              withArrow
+              position="top"
+            >
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={() => setKeyVisible((v) => !v)}
+                aria-label={keyVisible ? "Hide API key" : "Show API key"}
+              >
+                {keyVisible ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+              </ActionIcon>
+            </Tooltip>
+            <CopyButton value={apiKey} timeout={1500}>
+              {({ copied, copy }) => (
+                <Tooltip
+                  label={copied ? "Copied" : "Copy key"}
+                  withArrow
+                  position="top"
+                >
+                  <ActionIcon
+                    variant="subtle"
+                    color={copied ? "teal" : "gray"}
+                    onClick={copy}
+                    aria-label="Copy API key"
+                  >
+                    {copied ? <FiCheck size={16} /> : <FiCopy size={16} />}
+                  </ActionIcon>
+                </Tooltip>
+              )}
+            </CopyButton>
+          </Group>
+        }
       />
 
       {replacing ? (
