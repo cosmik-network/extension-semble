@@ -14,6 +14,8 @@ export default defineConfig({
   },
   manifest: {
     name: "Semble",
+    description:
+      "Save pages to your Semble library, organize them into collections, and create typed connections between them.",
     permissions: ["tabs", "storage", "contextMenus", "notifications"],
     host_permissions: ["https://api.semble.so/*"],
   },
