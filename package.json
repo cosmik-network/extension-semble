@@ -3,6 +3,7 @@
   "description": "Save pages to your Semble library, organize them into collections, and create typed connections between them — right from your browser.",
   "private": true,
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "wxt",
