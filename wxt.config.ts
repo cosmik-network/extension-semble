@@ -18,5 +18,13 @@ export default defineConfig({
       "Save pages to your Semble library, organize them into collections, and create typed connections between them.",
     permissions: ["tabs", "storage", "contextMenus", "notifications"],
     host_permissions: ["https://api.semble.so/*"],
+    browser_specific_settings: {
+      gecko: {
+        id: "semble@semble.so",
+        data_collection_permissions: {
+          required: ["none"],
+        },
+      },
+    },
   },
 });
