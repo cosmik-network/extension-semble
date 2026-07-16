@@ -42,11 +42,15 @@ function notify(title: string, message: string): void {
 
 /** Sets (or clears) the saved badge for a specific tab. */
 async function setBadge(tabId: number, saved: boolean): Promise<void> {
-  await action.setBadgeText({ tabId, text: saved ? BADGE_TEXT : "" });
-  if (saved) {
-    await action.setBadgeBackgroundColor({ tabId, color: BADGE_COLOR });
-    // Not supported everywhere; ignore if missing.
-    await action.setBadgeTextColor?.({ tabId, color: "#ffffff" });
+  try {
+    await action.setBadgeText({ tabId, text: saved ? BADGE_TEXT : "" });
+    if (saved) {
+      await action.setBadgeBackgroundColor({ tabId, color: BADGE_COLOR });
+      // Not supported everywhere; ignore if missing.
+      await action.setBadgeTextColor?.({ tabId, color: "#ffffff" });
+    }
+  } catch {
+    // Tab closed before the badge update landed — nothing to do.
   }
 }
 
@@ -276,7 +280,10 @@ export default defineBackground(() => {
 
   // --- Toolbar badge --------------------------------------------------------
   browser.tabs.onActivated.addListener(({ tabId }) => {
-    void browser.tabs.get(tabId).then((tab) => evaluateTab(tabId, tab?.url));
+    browser.tabs.get(tabId).then(
+      (tab) => evaluateTab(tabId, tab?.url),
+      () => {}, // tab closed before we could read it
+    );
   });
 
   browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
