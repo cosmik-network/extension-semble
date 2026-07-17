@@ -97,7 +97,10 @@ export function CollectionList(props: Props) {
   }
 
   return (
-    <Stack gap="xs">
+    // minHeight: 0 down to the scroll area lets the list shrink below 180px
+    // when the tab runs out of room (e.g. search open), instead of pushing
+    // the note below the fold.
+    <Stack gap="xs" style={{ minHeight: 0 }}>
       {props.searchOpen && (
         <TextInput
           autoFocus
@@ -121,6 +124,7 @@ export function CollectionList(props: Props) {
 
       <ScrollArea.Autosize
         mah={180}
+        style={{ minHeight: 0 }}
         viewportRef={setViewport}
         onScrollPositionChange={updateFade}
         styles={{

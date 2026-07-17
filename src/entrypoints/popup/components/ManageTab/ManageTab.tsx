@@ -5,7 +5,6 @@ import {
   Button,
   Divider,
   Group,
-  ScrollArea,
   Stack,
   Tooltip,
 } from "@mantine/core";
@@ -145,22 +144,20 @@ export function ManageTab(props: Props) {
         </Alert>
       )}
 
-      {/* Scrolls; header/tabs above and buttons below stay put */}
-      <ScrollArea type="auto" style={{ flex: 1, minHeight: 0 }}>
-        <Stack gap="sm">
-          <CollectionPicker
-            collections={props.collections}
-            selectedCollections={selectedCollections}
-            selectedIds={selectedIds}
-            onToggle={handleToggle}
-            onCreate={handleCreateCollection}
-          />
+      {/* The picker absorbs all free space and its list is the only scroll
+          region, so the divider/note/buttons stay anchored at the bottom —
+          toggling the picker's search never moves them. */}
+      <CollectionPicker
+        collections={props.collections}
+        selectedCollections={selectedCollections}
+        selectedIds={selectedIds}
+        onToggle={handleToggle}
+        onCreate={handleCreateCollection}
+      />
 
-          <Divider />
+      <Divider />
 
-          <NoteEditor value={note} onChange={setNote} />
-        </Stack>
-      </ScrollArea>
+      <NoteEditor value={note} onChange={setNote} />
 
       {/* Pinned to the bottom */}
       <Group gap="xs" wrap="nowrap">

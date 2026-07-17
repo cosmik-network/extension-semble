@@ -57,7 +57,10 @@ export function CollectionPicker(props: Props) {
   }
 
   return (
-    <Stack gap="xs">
+    // flex: 1 makes the picker absorb all free space (so toggling the search
+    // field eats into that slack instead of moving the note/buttons below);
+    // minHeight: 0 lets it shrink below content height so the list scrolls.
+    <Stack gap="xs" style={{ flex: 1, minHeight: 0 }}>
       <Group gap="xs" wrap="nowrap">
         <SegmentedControl
           size="sm"
