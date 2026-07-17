@@ -18,6 +18,10 @@ export const queryKeys = {
     all: ["urlState"] as const,
     byUrl: (url: string) => ["urlState", url] as const,
   },
+  urlStats: {
+    all: ["urlStats"] as const,
+    byUrl: (url: string) => ["urlStats", url] as const,
+  },
   similarUrls: {
     all: ["similarUrls"] as const,
     byUrl: (url: string, urlType?: UrlType) =>

@@ -12,6 +12,8 @@ export function useRemoveFromLibrary() {
       requestBadgeRefresh();
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.urlState.all }),
+        // Save/collection counts changed (only the card id is known here).
+        queryClient.invalidateQueries({ queryKey: queryKeys.urlStats.all }),
         // Card counts changed.
         queryClient.invalidateQueries({ queryKey: queryKeys.collections.all }),
         // Search results' "Saved" badges no longer apply to this URL.

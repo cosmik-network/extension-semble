@@ -12,6 +12,8 @@ export function useUpdateCard() {
       requestBadgeRefresh();
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.urlState.all }),
+        // Collection membership changes the URL's collection count.
+        queryClient.invalidateQueries({ queryKey: queryKeys.urlStats.all }),
         // Card counts changed.
         queryClient.invalidateQueries({ queryKey: queryKeys.collections.all }),
         // Note/collection changes are reflected in search results.

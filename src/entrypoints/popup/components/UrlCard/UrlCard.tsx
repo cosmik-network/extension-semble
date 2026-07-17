@@ -10,11 +10,13 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { domainFromUrl } from "../../../../lib/activeTab";
-import type { UrlMetadata } from "../../../../lib/library";
+import type { UrlMetadata, UrlStats } from "../../../../lib/library";
+import { UrlStatsRow } from "../UrlStatsRow";
 
 export function UrlCard(props: {
   metadata: UrlMetadata;
   inLibrary?: boolean;
+  stats?: UrlStats;
 }) {
   const { metadata } = props;
   const domain = domainFromUrl(metadata.url);
@@ -64,6 +66,8 @@ export function UrlCard(props: {
             {metadata.description}
           </Text>
         )}
+        {/* Only rendered once the (separately fetched) stats have loaded. */}
+        {props.stats && <UrlStatsRow stats={props.stats} />}
       </Stack>
       {metadata.imageUrl && !imageError && (
         <AspectRatio ratio={1}>

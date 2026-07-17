@@ -1,0 +1,8 @@
+.count {
+    /* One step stronger than the dimmed label, but softer than the title —
+       adapts to the colour scheme. */
+    color: light-dark(
+        var(--mantine-color-gray-7),
+        var(--mantine-color-dark-1)
+    );
+}

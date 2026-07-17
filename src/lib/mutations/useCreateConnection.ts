@@ -19,6 +19,13 @@ export function useCreateConnection() {
         queryClient.invalidateQueries({
           queryKey: queryKeys.connections.byUrl(variables.targetUrl),
         }),
+        // Connection counts changed on both ends.
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.urlStats.byUrl(variables.sourceUrl),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.urlStats.byUrl(variables.targetUrl),
+        }),
       ]),
   });
 }

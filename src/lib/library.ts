@@ -35,6 +35,17 @@ export interface UrlState {
   collections: CollectionSummary[];
 }
 
+export interface UrlStats {
+  /** How many users have this URL in their library. */
+  saves: number;
+  /** How many collections (across all users) contain this URL. */
+  collections: number;
+  /** How many note cards are attached to this URL. */
+  notes: number;
+  /** Total connections (incoming + outgoing) for this URL. */
+  connections: number;
+}
+
 export interface SimilarUrl {
   metadata: UrlMetadata;
   /** How many users have this URL in their library. */
@@ -190,6 +201,20 @@ export async function loadUrlState(url: string): Promise<UrlState> {
     collectionIds: [],
     collections: [],
     metadata: toMetadata(meta.metadata),
+  };
+}
+
+/** Aggregated Semble-wide stats for a URL (null when the API returns none). */
+export async function getUrlStats(url: string): Promise<UrlStats | null> {
+  const body = await unwrap(
+    getClient().cards.urlMetadata({ query: { url, includeStats: true } }),
+  );
+  if (!body.stats) return null;
+  return {
+    saves: body.stats.libraryCount,
+    collections: body.stats.collectionCount,
+    notes: body.stats.noteCount,
+    connections: body.stats.connections.all.total,
   };
 }
 

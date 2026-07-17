@@ -17,6 +17,10 @@ export function useAddToLibrary() {
         queryClient.invalidateQueries({
           queryKey: queryKeys.urlState.byUrl(variables.url),
         }),
+        // Save/collection counts changed.
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.urlStats.byUrl(variables.url),
+        }),
         // Card counts changed.
         queryClient.invalidateQueries({ queryKey: queryKeys.collections.all }),
         // Search results' "Saved" badges may now apply to this URL.

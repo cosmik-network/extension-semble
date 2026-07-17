@@ -1,6 +1,7 @@
 import { Card, Scroller, Stack, Tabs } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import type { CollectionSummary, UrlState } from "../../../../lib/library";
+import { useUrlStats } from "../../../../lib/queries";
 import { UrlCard } from "../UrlCard";
 import { ManageTab } from "../ManageTab";
 import { RelatedTab } from "../RelatedTab";
@@ -28,6 +29,8 @@ export function MainTabs(props: MainTabsProps) {
     defaultValue: "save",
     getInitialValueInEffect: false,
   });
+  // Loads independently of the URL state so the tabs never wait on it.
+  const statsQuery = useUrlStats(props.url);
 
   return (
     <Stack gap="sm" style={PANEL_STYLE}>
@@ -36,6 +39,7 @@ export function MainTabs(props: MainTabsProps) {
         <UrlCard
           metadata={props.urlState.metadata}
           inLibrary={!!props.urlState.cardId}
+          stats={statsQuery.data ?? undefined}
         />
       </Card>
 
