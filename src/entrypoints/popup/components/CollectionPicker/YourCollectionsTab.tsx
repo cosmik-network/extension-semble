@@ -1,5 +1,8 @@
 import type { CollectionSummary } from "../../../../lib/library";
+import { useMyCollectionSearch } from "../../../../lib/queries";
 import { CollectionList } from "./CollectionList";
+import { useCreateOption } from "./useCreateOption";
+import { useDebouncedSearch } from "./useDebouncedSearch";
 
 interface Props {
   /** The user's own collections. */
@@ -13,25 +16,35 @@ interface Props {
   onSearchChange: (value: string) => void;
 }
 
-/** The "My collections" view: the user's own collections, filtered client-side. */
+/**
+ * The "My collections" view: shows the user's own collections, and switches to
+ * a debounced server-side search across all of them (name and description)
+ * when the user types — the local list is only the first page, so filtering it
+ * client-side would miss collections.
+ */
 export function YourCollectionsTab(props: Props) {
-  const query = props.search.trim();
-  const filtered = props.collections.filter((c) =>
-    c.name.toLowerCase().includes(query.toLowerCase()),
-  );
-  const exactMatch = props.collections.some(
-    (c) => c.name.toLowerCase() === query.toLowerCase(),
-  );
-  const showCreate = query !== "" && !exactMatch;
+  const { trimmed, searching } = useDebouncedSearch(props.search);
 
-  async function handleCreate() {
-    await props.onCreate(query, "CLOSED");
-    props.onSearchChange("");
-  }
+  const searchQuery = useMyCollectionSearch({
+    searchText: trimmed,
+    enabled: searching,
+  });
+
+  const items = searching ? (searchQuery.data ?? []) : props.collections;
+  const loading = searching && searchQuery.isPending;
+
+  const { query, showCreate, handleCreate } = useCreateOption({
+    search: props.search,
+    items,
+    selectedCollections: props.selectedCollections,
+    accessType: "CLOSED",
+    onCreate: props.onCreate,
+    onSearchChange: props.onSearchChange,
+  });
 
   return (
     <CollectionList
-      items={filtered}
+      items={items}
       selectedCollections={props.selectedCollections}
       selectedIds={props.selectedIds}
       onToggle={props.onToggle}
@@ -41,10 +54,9 @@ export function YourCollectionsTab(props: Props) {
       searchPlaceholder="Search or create a collection…"
       onCreate={showCreate ? handleCreate : undefined}
       createLabel={`Create new collection “${query}”`}
+      loading={loading}
       emptyLabel={
-        props.collections.length === 0
-          ? "No collections yet."
-          : "No collections match."
+        searching ? `No collections match “${query}”.` : "No collections yet."
       }
     />
   );

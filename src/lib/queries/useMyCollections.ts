@@ -7,7 +7,7 @@ import { queryKeys } from "./queryKeys";
 export function useMyCollections() {
   return useQuery({
     queryKey: queryKeys.collections.my,
-    queryFn: listMyCollections,
+    queryFn: () => listMyCollections(),
     enabled: !!getApiKey(),
   });
 }

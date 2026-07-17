@@ -10,6 +10,8 @@ export const queryKeys = {
   collections: {
     all: ["collections"] as const,
     my: ["collections", "my"] as const,
+    mySearch: (searchText: string) =>
+      ["collections", "my", "search", searchText] as const,
     open: (identifier: string) => ["collections", "open", identifier] as const,
     search: (searchText: string, accessType?: CollectionAccessType) =>
       ["collections", "search", searchText, accessType ?? null] as const,

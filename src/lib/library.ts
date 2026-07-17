@@ -125,9 +125,13 @@ function toCollectionSummary(col: {
   };
 }
 
-export async function listMyCollections(): Promise<CollectionSummary[]> {
+export async function listMyCollections(input?: {
+  searchText?: string;
+}): Promise<CollectionSummary[]> {
   const body = await unwrap(
-    getClient().collections.myCollections({ query: { limit: 100 } }),
+    getClient().collections.myCollections({
+      query: { limit: 100, searchText: input?.searchText?.trim() || undefined },
+    }),
   );
   return body.collections.map(toCollectionSummary);
 }

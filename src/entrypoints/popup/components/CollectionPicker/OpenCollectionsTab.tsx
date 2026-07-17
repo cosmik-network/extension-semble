@@ -1,4 +1,3 @@
-import { useDebouncedValue } from "@mantine/hooks";
 import type { CollectionSummary } from "../../../../lib/library";
 import {
   useCollectionSearch,
@@ -6,6 +5,8 @@ import {
   useOpenCollections,
 } from "../../../../lib/queries";
 import { CollectionList } from "./CollectionList";
+import { useCreateOption } from "./useCreateOption";
+import { useDebouncedSearch } from "./useDebouncedSearch";
 
 interface Props {
   selectedCollections: CollectionSummary[];
@@ -28,9 +29,7 @@ export function OpenCollectionsTab(props: Props) {
   const profile = useMyProfile();
   const identifier = profile.data?.id;
 
-  const [debounced] = useDebouncedValue(props.search, 300);
-  const trimmed = debounced.trim();
-  const searching = trimmed !== "";
+  const { trimmed, searching } = useDebouncedSearch(props.search);
 
   const contributedQuery = useOpenCollections(identifier);
   const contributed = contributedQuery.data ?? [];
@@ -52,16 +51,14 @@ export function OpenCollectionsTab(props: Props) {
       contributedQuery.isPending ||
       (noContributed && searchQuery.isPending);
 
-  const query = props.search.trim();
-  const exactMatch = [...props.selectedCollections, ...items].some(
-    (c) => c.name.toLowerCase() === query.toLowerCase(),
-  );
-  const showCreate = query !== "" && !exactMatch;
-
-  async function handleCreate() {
-    await props.onCreate(query, "OPEN");
-    props.onSearchChange("");
-  }
+  const { query, showCreate, handleCreate } = useCreateOption({
+    search: props.search,
+    items,
+    selectedCollections: props.selectedCollections,
+    accessType: "OPEN",
+    onCreate: props.onCreate,
+    onSearchChange: props.onSearchChange,
+  });
 
   return (
     <CollectionList

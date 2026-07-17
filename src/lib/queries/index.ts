@@ -1,6 +1,7 @@
 export { queryKeys } from "./queryKeys";
 export { useMyProfile } from "./useMyProfile";
 export { useMyCollections } from "./useMyCollections";
+export { useMyCollectionSearch } from "./useMyCollectionSearch";
 export { useOpenCollections } from "./useOpenCollections";
 export { useCollectionSearch } from "./useCollectionSearch";
 export { useUrlState } from "./useUrlState";
