@@ -7,7 +7,9 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
+import type { IconType } from "react-icons";
 import { useScrollFade } from "../../hooks/useScrollFade";
+import { EmptyState } from "../EmptyState";
 
 /** Load the next page when scrolled within this many px of the end. */
 const NEXT_PAGE_SCROLL_MARGIN = 200;
@@ -31,6 +33,8 @@ interface InfiniteListProps<P, T> {
   renderItem: (item: T) => ReactNode;
   /** Shown when the query succeeds with no results. */
   emptyMessage: string;
+  /** When set, the empty state is a centered icon + message instead of plain text. */
+  emptyIcon?: IconType;
   /** Placeholder row rendered while pending (defaults to a plain Skeleton). */
   renderSkeleton?: () => ReactNode;
   skeletonCount?: number;
@@ -85,6 +89,9 @@ export function InfiniteList<P, T>(props: InfiniteListProps<P, T>) {
 
   const items = data?.pages.flatMap(props.getItems) ?? [];
   if (items.length === 0) {
+    if (props.emptyIcon) {
+      return <EmptyState icon={props.emptyIcon} message={props.emptyMessage} />;
+    }
     return (
       <Text size="sm" fw={500} c="dimmed" mx={"auto"} my={"xs"}>
         {props.emptyMessage}

@@ -1,3 +1,4 @@
+import { LuLibrary } from "react-icons/lu";
 import { useUrlSavers } from "../../../../lib/queries";
 import { BottomDrawer } from "../BottomDrawer";
 import { InfiniteList } from "../InfiniteList";
@@ -26,7 +27,8 @@ export function SaversDrawer(props: {
         getItems={(page) => page.savers}
         getKey={(saver) => saver.id}
         renderItem={(saver) => <SaverItem saver={saver} />}
-        emptyMessage="No one has saved this yet."
+        emptyMessage="No one has added this to their library yet"
+        emptyIcon={LuLibrary}
         renderSkeleton={() => <SaverItemSkeleton />}
       />
     </BottomDrawer>

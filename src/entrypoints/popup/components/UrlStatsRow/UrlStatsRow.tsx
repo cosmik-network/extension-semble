@@ -17,9 +17,9 @@ const STATS: { key: keyof UrlStats; noun: string; ariaLabel: string }[] = [
 /** Semble-wide counts for a URL, shown as a "3 saves · 2 collections" row. */
 export function UrlStatsRow(props: {
   stats: UrlStats;
-  /** When set (and there are saves), the saves stat becomes clickable. */
+  /** When set, the saves stat becomes clickable. */
   onSavesClick?: () => void;
-  /** When set (and there are collections), the collections stat becomes clickable. */
+  /** When set, the collections stat becomes clickable. */
   onCollectionsClick?: () => void;
 }) {
   const clickHandlers: Partial<
@@ -40,7 +40,7 @@ export function UrlStatsRow(props: {
             {pluralize(count, stat.noun)}
           </>
         );
-        if (onClick && count > 0) {
+        if (onClick) {
           return (
             <Anchor
               key={stat.key}

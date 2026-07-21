@@ -1,3 +1,4 @@
+import { BiCollection } from "react-icons/bi";
 import { useUrlCollections } from "../../../../lib/queries";
 import { BottomDrawer } from "../BottomDrawer";
 import { InfiniteList } from "../InfiniteList";
@@ -26,7 +27,8 @@ export function CollectionsDrawer(props: {
         getItems={(page) => page.collections}
         getKey={(collection) => collection.id}
         renderItem={(collection) => <CollectionItem collection={collection} />}
-        emptyMessage="This isn't in any collections yet."
+        emptyMessage="No collections"
+        emptyIcon={BiCollection}
         renderSkeleton={() => <CollectionItemSkeleton />}
         skeletonCount={3}
       />
