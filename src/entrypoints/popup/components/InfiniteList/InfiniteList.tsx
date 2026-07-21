@@ -45,7 +45,7 @@ export function InfiniteList<P, T>(props: InfiniteListProps<P, T>) {
   const { data, isPending, isError, error, hasNextPage, isFetchingNextPage } =
     props.query;
   const { viewportRef, setViewport, maskImage, updateFade } = useScrollFade();
-  const skeletonCount = props.skeletonCount ?? 6;
+  const skeletonCount = props.skeletonCount ?? 7;
 
   function handleScrollPositionChange() {
     updateFade();

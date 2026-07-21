@@ -9,6 +9,7 @@ import {
 import type { MyProfile } from "../../../../lib/library";
 import { queryClient } from "../../../../lib/queryClient";
 import { clearApiKey } from "../../../../lib/semble";
+import { sembleProfileUrl } from "../../../../lib/sembleWeb";
 
 /**
  * Header avatar that opens a profile menu: profile link, submit an issue, log
@@ -40,7 +41,7 @@ export function ProfileMenu(props: { profile: MyProfile }) {
       <Menu.Dropdown>
         <Menu.Item
           component="a"
-          href={`https://semble.so/profile/${profile.handle}`}
+          href={sembleProfileUrl(profile.handle)}
           target="_blank"
           rel="noreferrer"
         >

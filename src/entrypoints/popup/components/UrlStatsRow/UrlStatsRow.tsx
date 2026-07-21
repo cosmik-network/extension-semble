@@ -1,4 +1,4 @@
-import { Group, Text } from "@mantine/core";
+import { Anchor, Group, Text } from "@mantine/core";
 import type { UrlStats } from "../../../../lib/library";
 import classes from "./UrlStatsRow.module.css";
 
@@ -14,15 +14,41 @@ function pluralize(count: number, noun: string): string {
 }
 
 /** Semble-wide counts for a URL, shown as a "3 saves · 2 collections" row. */
-export function UrlStatsRow(props: { stats: UrlStats }) {
+export function UrlStatsRow(props: {
+  stats: UrlStats;
+  /** When set (and there are saves), the saves stat becomes clickable. */
+  onSavesClick?: () => void;
+}) {
   return (
     <Group gap="sm" mt={8}>
       {STATS.map((stat) => {
         const count = props.stats[stat.key];
-        return (
-          <Text key={stat.key} fz="xs" fw={600} c="dimmed">
+        const label = (
+          <>
             <span className={classes.count}>{count}</span>{" "}
             {pluralize(count, stat.noun)}
+          </>
+        );
+        if (stat.key === "saves" && props.onSavesClick && count > 0) {
+          return (
+            <Anchor
+              key={stat.key}
+              component="button"
+              type="button"
+              onClick={props.onSavesClick}
+              underline="hover"
+              fz="xs"
+              fw={600}
+              c="dimmed"
+              aria-label="Show who saved this page"
+            >
+              {label}
+            </Anchor>
+          );
+        }
+        return (
+          <Text key={stat.key} fz="xs" fw={600} c="dimmed">
+            {label}
           </Text>
         );
       })}

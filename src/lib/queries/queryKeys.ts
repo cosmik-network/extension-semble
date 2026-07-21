@@ -38,4 +38,8 @@ export const queryKeys = {
     all: ["connections"] as const,
     byUrl: (url: string) => ["connections", url] as const,
   },
+  savers: {
+    all: ["savers"] as const,
+    byUrl: (url: string) => ["savers", url] as const,
+  },
 };

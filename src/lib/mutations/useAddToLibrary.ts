@@ -21,6 +21,10 @@ export function useAddToLibrary() {
         queryClient.invalidateQueries({
           queryKey: queryKeys.urlStats.byUrl(variables.url),
         }),
+        // The current user now appears among the URL's savers.
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.savers.byUrl(variables.url),
+        }),
         // Card counts changed.
         queryClient.invalidateQueries({ queryKey: queryKeys.collections.all }),
         // Search results' "Saved" badges may now apply to this URL.
