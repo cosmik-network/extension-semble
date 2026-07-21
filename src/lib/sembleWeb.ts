@@ -6,3 +6,11 @@ const SEMBLE_WEB_URL = "https://semble.so";
 export function sembleProfileUrl(handle: string): string {
   return `${SEMBLE_WEB_URL}/profile/${handle}`;
 }
+
+/**
+ * The web app's page for a collection, addressed by its author's handle and
+ * the collection's AT-URI record key.
+ */
+export function sembleCollectionUrl(handle: string, rkey: string): string {
+  return `${sembleProfileUrl(handle)}/collections/${rkey}`;
+}

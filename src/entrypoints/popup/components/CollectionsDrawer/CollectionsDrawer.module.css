@@ -1,0 +1,18 @@
+/* Hover feedback has no Mantine prop equivalent — CSS only for this. */
+.item {
+  transition: background-color 100ms ease;
+
+  &:hover {
+    background-color: var(--mantine-color-gray-light);
+  }
+}
+
+/* Horizontal card-preview strip: scrolls without showing a scrollbar. */
+.previews {
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

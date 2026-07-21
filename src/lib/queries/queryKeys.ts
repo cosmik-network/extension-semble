@@ -15,6 +15,11 @@ export const queryKeys = {
     open: (identifier: string) => ["collections", "open", identifier] as const,
     search: (searchText: string, accessType?: CollectionAccessType) =>
       ["collections", "search", searchText, accessType ?? null] as const,
+    // These live under `collections` so the mutations' `collections.all`
+    // invalidations (card added/removed) refresh them too.
+    forUrl: (url: string) => ["collections", "forUrl", url] as const,
+    preview: (collectionId: string) =>
+      ["collections", "preview", collectionId] as const,
   },
   urlState: {
     all: ["urlState"] as const,

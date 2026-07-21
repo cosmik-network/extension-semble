@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { domainFromUrl } from "../../../../lib/activeTab";
 import type { UrlMetadata, UrlStats } from "../../../../lib/library";
+import { CollectionsDrawer } from "../CollectionsDrawer";
 import { SaversDrawer } from "../SaversDrawer";
 import { UrlStatsRow } from "../UrlStatsRow";
 
@@ -23,6 +24,7 @@ export function UrlCard(props: {
   const domain = domainFromUrl(metadata.url);
   const [imageError, setImageError] = useState(false);
   const [saversOpened, setSaversOpened] = useState(false);
+  const [collectionsOpened, setCollectionsOpened] = useState(false);
 
   return (
     <>
@@ -74,6 +76,7 @@ export function UrlCard(props: {
             <UrlStatsRow
               stats={props.stats}
               onSavesClick={() => setSaversOpened(true)}
+              onCollectionsClick={() => setCollectionsOpened(true)}
             />
           )}
         </Stack>
@@ -95,6 +98,11 @@ export function UrlCard(props: {
         url={metadata.url}
         opened={saversOpened}
         onClose={() => setSaversOpened(false)}
+      />
+      <CollectionsDrawer
+        url={metadata.url}
+        opened={collectionsOpened}
+        onClose={() => setCollectionsOpened(false)}
       />
     </>
   );

@@ -1,5 +1,5 @@
-import { Drawer } from "@mantine/core";
 import { useUrlSavers } from "../../../../lib/queries";
+import { BottomDrawer } from "../BottomDrawer";
 import { InfiniteList } from "../InfiniteList";
 import { SaverItem } from "./SaverItem";
 import { SaverItemSkeleton } from "./Skeleton.SaverItem";
@@ -16,24 +16,10 @@ export function SaversDrawer(props: {
   const query = useUrlSavers(props.url, { enabled: props.opened });
 
   return (
-    <Drawer
+    <BottomDrawer
+      title="Saved by"
       opened={props.opened}
       onClose={props.onClose}
-      title="Saved by"
-      position="bottom"
-      size="75%"
-      radius="lg"
-      padding="xs"
-      styles={{
-        title: { fontWeight: 600 },
-        content: { display: "flex", flexDirection: "column" },
-        body: {
-          flex: 1,
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
     >
       <InfiniteList
         query={query}
@@ -43,6 +29,6 @@ export function SaversDrawer(props: {
         emptyMessage="No one has saved this yet."
         renderSkeleton={() => <SaverItemSkeleton />}
       />
-    </Drawer>
+    </BottomDrawer>
   );
 }

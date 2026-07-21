@@ -10,10 +10,7 @@ export const CONNECTIONS_PAGE_SIZE = 20;
  * {@link CONNECTIONS_PAGE_SIZE}. Pass `enabled: false` to defer fetching until
  * the Connections tab becomes active.
  */
-export function useConnections(
-  url: string,
-  options?: { enabled?: boolean },
-) {
+export function useConnections(url: string, options?: { enabled?: boolean }) {
   return useInfiniteQuery({
     queryKey: queryKeys.connections.byUrl(url),
     queryFn: ({ pageParam }) =>
