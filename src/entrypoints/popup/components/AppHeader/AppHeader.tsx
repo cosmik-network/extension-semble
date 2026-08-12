@@ -12,7 +12,8 @@ interface AppHeaderProps {
   onOpenSettings: () => void;
   onBack: () => void;
   profile?: MyProfile;
-  /** Whether an API key is configured (controls the signed-out skeleton). */
+  /** Whether an API key is configured — the actions are hidden while signed
+   *  out, since the sign-in form is the content. */
   hasKey: boolean;
 }
 
@@ -53,44 +54,47 @@ export function AppHeader(props: AppHeaderProps) {
         </a>
       )}
 
-      <Group gap="md" wrap="nowrap">
-        {props.profile ? (
-          <>
-            <Group gap="xxs" wrap="nowrap">
-              {isMain && (
-                <Tooltip label="Search Semble">
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    radius="xl"
-                    aria-label="Search"
-                    onClick={props.onOpenSearch}
-                  >
-                    <FiSearch size={18} />
-                  </ActionIcon>
-                </Tooltip>
-              )}
-              {props.view !== "settings" && (
-                <Tooltip label="Settings">
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    radius="xl"
-                    aria-label="Settings"
-                    onClick={props.onOpenSettings}
-                  >
-                    <TbSettings size={18} />
-                  </ActionIcon>
-                </Tooltip>
-              )}
-            </Group>
+      {props.hasKey && (
+        <Group gap="md" wrap="nowrap">
+          <Group gap="xxs" wrap="nowrap">
+            {/* Searching needs a working connection. */}
+            {isMain && props.profile && (
+              <Tooltip label="Search Semble">
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  radius="xl"
+                  aria-label="Search"
+                  onClick={props.onOpenSearch}
+                >
+                  <FiSearch size={18} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {/* Deliberately not gated on the profile: settings is where a
+                rejected key gets replaced, so it has to stay reachable when
+                every request is failing. */}
+            {props.view !== "settings" && (
+              <Tooltip label="Settings">
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  radius="xl"
+                  aria-label="Settings"
+                  onClick={props.onOpenSettings}
+                >
+                  <TbSettings size={18} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </Group>
+          {props.profile ? (
             <ProfileMenu profile={props.profile} />
-          </>
-        ) : (
-          // No avatar while signed out — the sign-in form is the content.
-          props.hasKey && <ProfileMenuSkeleton />
-        )}
-      </Group>
+          ) : (
+            <ProfileMenuSkeleton />
+          )}
+        </Group>
+      )}
     </Group>
   );
 }

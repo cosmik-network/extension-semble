@@ -1,6 +1,17 @@
 import { NoApiKeyError, SembleApiError } from "./semble";
 
 /**
+ * True when the API rejected our credentials, so retrying is pointless and the
+ * key has to be replaced.
+ */
+export function isAuthError(error: unknown): boolean {
+  return (
+    error instanceof SembleApiError &&
+    (error.status === 401 || error.status === 403)
+  );
+}
+
+/**
  * Turns any thrown value into human, actionable copy for the UI. Keeps raw
  * `SembleApiError (500)`-style messages out of the interface and gives the user
  * a hint at what to do (reconnect, wait, check the connection).
@@ -14,10 +25,11 @@ export function describeError(error: unknown): string {
     return "Sign in to Semble to continue.";
   }
 
+  if (isAuthError(error)) {
+    return "Your API key was rejected — reconnect in settings.";
+  }
+
   if (error instanceof SembleApiError) {
-    if (error.status === 401 || error.status === 403) {
-      return "Your API key was rejected — reconnect in settings.";
-    }
     if (error.status === 429) {
       return "You're going a bit fast — wait a moment and try again.";
     }

@@ -12,7 +12,7 @@ import {
   useComputedColorScheme,
 } from "@mantine/core";
 import { isSupportedUrl } from "../../lib/activeTab";
-import { describeError } from "../../lib/errors";
+import { describeError, isAuthError } from "../../lib/errors";
 import { useApiKey, useSaveAllJob } from "../../lib/hooks";
 import {
   queryKeys,
@@ -100,8 +100,9 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
         height: sidepanel ? "100vh" : fixedHeight ? 590 : undefined,
         // Short, signed-in states (unsupported/error/settings) size to content,
         // which can be too short for the profile-menu dropdown — reserve room so
-        // it opens downward instead of being clipped by the popup window.
-        minHeight: !sidepanel && !fixedHeight && profile.data ? 300 : undefined,
+        // it opens downward instead of being clipped by the popup window. Keyed
+        // on `hasKey` to match when the header actually renders the menu.
+        minHeight: !sidepanel && !fixedHeight && hasKey ? 300 : undefined,
       }}
     >
       <Banner />
@@ -141,6 +142,7 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
           url={url}
           urlState={urlState}
           collections={collections}
+          onOpenSettings={() => setView("settings")}
         />
       )}
     </Card>
@@ -152,6 +154,8 @@ interface MainContentProps {
   url: string;
   urlState: ReturnType<typeof useUrlState>;
   collections: ReturnType<typeof useMyCollections>;
+  /** Opens the settings view, where a rejected key can be replaced. */
+  onOpenSettings: () => void;
 }
 
 /** The non-search ("main") body: one block per {@link Phase}. */
@@ -172,13 +176,21 @@ function MainContent(props: MainContentProps) {
   }
 
   if (phase === "error") {
+    // Either query can be the one that hit the rejection, and the other may
+    // have failed for an unrelated reason.
+    const rejected =
+      isAuthError(urlState.error) || isAuthError(collections.error);
     return (
       <Stack gap="xs">
         <Alert color="red" variant="light">
           {describeError(urlState.error ?? collections.error)}
         </Alert>
+        {/* A rejected key can't be retried into working — lead with the way
+            out, and demote Retry to the off chance it was a blip. */}
+        {rejected && <Button onClick={props.onOpenSettings}>Reconnect</Button>}
         <Button
-          variant="light"
+          variant={rejected ? "subtle" : "light"}
+          color={rejected ? "gray" : undefined}
           onClick={() => {
             void urlState.refetch();
             void collections.refetch();
