@@ -18,7 +18,8 @@ import { UrlStatsRow } from "../UrlStatsRow";
 export function UrlCard(props: {
   metadata: UrlMetadata;
   inLibrary?: boolean;
-  stats?: UrlStats;
+  /** Omit to hide the stats row; `"pending"` shows it as a skeleton. */
+  stats?: UrlStats | "pending";
 }) {
   const { metadata } = props;
   const domain = domainFromUrl(metadata.url);
@@ -71,7 +72,8 @@ export function UrlCard(props: {
               {metadata.description}
             </Text>
           )}
-          {/* Only rendered once the (separately fetched) stats have loaded. */}
+          {/* Omitted entirely when there are no stats to show; `"pending"`
+              reserves the row's height while they load. */}
           {props.stats && (
             <UrlStatsRow
               stats={props.stats}

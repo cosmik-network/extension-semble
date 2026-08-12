@@ -39,7 +39,10 @@ export function MainTabs(props: MainTabsProps) {
         <UrlCard
           metadata={props.urlState.metadata}
           inLibrary={!!props.urlState.cardId}
-          stats={statsQuery.data ?? undefined}
+          // Only this level can tell "still loading" from "the API returned
+          // none" — the row reserves space for the first, and is skipped for
+          // the second (and for an outright failure).
+          stats={statsQuery.isPending ? "pending" : (statsQuery.data ?? undefined)}
         />
       </Card>
 
