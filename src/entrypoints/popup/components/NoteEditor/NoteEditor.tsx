@@ -13,9 +13,9 @@ export function NoteEditor(props: Props) {
         placeholder={props.placeholder ?? "Add a note…"}
         variant="filled"
         autosize
-        minRows={3}
-        rows={3}
-        maxRows={3}
+        minRows={2}
+        rows={2}
+        maxRows={2}
         value={props.value}
         onChange={(e) => props.onChange(e.currentTarget.value)}
       />

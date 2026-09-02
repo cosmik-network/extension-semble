@@ -4,3 +4,4 @@ allowBuilds:
   spawn-sync: true
 minimumReleaseAgeExclude:
   - '@semble.so/api@0.0.4'
+  - '@semble.so/api@0.0.10'

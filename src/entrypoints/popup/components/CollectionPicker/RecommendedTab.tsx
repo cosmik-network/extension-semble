@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { CollectionSummary } from "../../../../lib/library";
 import { useRecommendedCollections } from "../../../../lib/queries";
 import { CollectionList } from "./CollectionList";
@@ -8,7 +9,8 @@ interface Props {
   selectedCollections: CollectionSummary[];
   selectedIds: string[];
   onToggle: (collection: CollectionSummary, checked: boolean) => void;
-  searchOpen: boolean;
+  /** Scope pills, rendered between the search field and the rows. */
+  scopeSelector: ReactNode;
   search: string;
   onSearchChange: (value: string) => void;
 }
@@ -25,9 +27,7 @@ export function RecommendedTab(props: Props) {
 
   const needle = props.search.trim().toLowerCase();
   const matches = (cols: CollectionSummary[]) =>
-    needle
-      ? cols.filter((c) => c.name.toLowerCase().includes(needle))
-      : cols;
+    needle ? cols.filter((c) => c.name.toLowerCase().includes(needle)) : cols;
 
   const myCollections = matches(query.data?.myCollections ?? []);
   const openCollections = matches(query.data?.openCollections ?? []);
@@ -42,11 +42,12 @@ export function RecommendedTab(props: Props) {
       selectedCollections={props.selectedCollections}
       selectedIds={props.selectedIds}
       onToggle={props.onToggle}
-      searchOpen={props.searchOpen}
+      scopeSelector={props.scopeSelector}
       searchValue={props.search}
       onSearchChange={props.onSearchChange}
       searchPlaceholder="Filter recommended collections…"
       loading={query.isPending}
+      error={query.error}
       emptyLabel={
         needle
           ? `No recommended collections match “${props.search.trim()}”.`

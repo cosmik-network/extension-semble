@@ -1,8 +1,9 @@
 import { Fragment, useState, type ReactNode } from "react";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiSearch } from "react-icons/fi";
 import { FaSeedling } from "react-icons/fa";
 import {
   Button,
+  Center,
   CheckboxCard,
   CheckboxIndicator,
   CloseButton,
@@ -14,6 +15,7 @@ import {
   TextInput,
   ThemeIcon,
 } from "@mantine/core";
+import { describeError } from "../../../../lib/errors";
 import type { CollectionSummary } from "../../../../lib/library";
 import { useScrollFade } from "../../hooks/useScrollFade";
 import classes from "./CollectionPicker.module.css";
@@ -36,8 +38,8 @@ interface Props {
   selectedCollections: CollectionSummary[];
   selectedIds: string[];
   onToggle: (collection: CollectionSummary, checked: boolean) => void;
-  /** Whether the search field is revealed (toggled from the picker). */
-  searchOpen: boolean;
+  /** Scope pills, rendered between the search field and the rows. */
+  scopeSelector: ReactNode;
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder: string;
@@ -46,6 +48,8 @@ interface Props {
   createLabel?: ReactNode;
   /** Server-side fetch/search in flight (open tab). */
   loading?: boolean;
+  /** A failed fetch/search — shown in place of the empty message. */
+  error?: unknown;
   emptyLabel: string;
 }
 
@@ -82,8 +86,9 @@ function CollectionRow(props: {
 }
 
 /**
- * Presentational collection list shared by both picker tabs: a search box, an
- * optional inline "create" button, a pinned section of selected collections
+ * Presentational collection list shared by the picker's scopes: the search
+ * box, the scope pills beneath it, an optional inline "create" button, a
+ * pinned section of selected collections
  * (so they stay visible/uncheckable even when filtered or searched away), and
  * the remaining candidates. The owning tab supplies the items, the search
  * wiring, and the create action.
@@ -101,7 +106,10 @@ export function CollectionList(props: Props) {
     }))
     .filter((s) => s.items.length > 0);
   const hasSelected = props.selectedCollections.length > 0;
-  const isEmpty = !props.loading && !hasSelected && sections.length === 0;
+  const hasRows = !!props.onCreate || hasSelected || sections.length > 0;
+  // With a create option the query names a collection to make, so "no
+  // matches" would only restate the obvious.
+  const showMessage = !props.loading && !hasRows;
 
   async function handleCreate() {
     if (creating || !props.onCreate) return;
@@ -115,98 +123,106 @@ export function CollectionList(props: Props) {
 
   return (
     // minHeight: 0 down to the scroll area lets the list shrink below 180px
-    // when the tab runs out of room (e.g. search open), instead of pushing
-    // the note below the fold.
-    <Stack gap="xs" style={{ minHeight: 0 }}>
-      {props.searchOpen && (
-        <TextInput
-          autoFocus
-          variant="filled"
-          size="sm"
-          placeholder={props.searchPlaceholder}
-          value={props.searchValue}
-          rightSection={
-            <CloseButton
-              aria-label="Clear input"
-              onClick={() => props.onSearchChange("")}
-              style={{ display: props.searchValue ? undefined : "none" }}
-            />
-          }
-          onChange={(e) => props.onSearchChange(e.currentTarget.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && props.onCreate) void handleCreate();
+    // when the tab runs out of room, instead of pushing the note below the
+    // fold.
+    <Stack gap="xs" style={{ flex: 1, minHeight: 0 }}>
+      <TextInput
+        variant="filled"
+        size="sm"
+        placeholder={props.searchPlaceholder}
+        value={props.searchValue}
+        leftSection={<FiSearch size={16} />}
+        rightSection={
+          <CloseButton
+            aria-label="Clear input"
+            onClick={() => props.onSearchChange("")}
+            style={{ display: props.searchValue ? undefined : "none" }}
+          />
+        }
+        onChange={(e) => props.onSearchChange(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && props.onCreate) void handleCreate();
+        }}
+      />
+
+      {props.scopeSelector}
+
+      {hasRows && (
+        <ScrollArea.Autosize
+          mah={180}
+          style={{ minHeight: 0 }}
+          viewportRef={setViewport}
+          onScrollPositionChange={updateFade}
+          styles={{
+            viewport: maskImage
+              ? { maskImage, WebkitMaskImage: maskImage }
+              : undefined,
           }}
-        />
+        >
+          <Stack gap="xxs">
+            {props.onCreate && (
+              <Button
+                variant="light"
+                color="grape"
+                size="sm"
+                fullWidth
+                justify="flex-start"
+                leftSection={<FiPlus />}
+                radius="md"
+                loading={creating}
+                onClick={() => void handleCreate()}
+              >
+                {props.createLabel}
+              </Button>
+            )}
+
+            {props.selectedCollections.map((col) => (
+              <CollectionRow
+                key={col.id}
+                collection={col}
+                checked
+                onToggle={props.onToggle}
+              />
+            ))}
+
+            {sections.map((section) => (
+              <Fragment key={section.label}>
+                {section.label && (
+                  <Text size="xs" c="dimmed" fw={500} mt={4}>
+                    {section.label}
+                  </Text>
+                )}
+                {section.items.map((col) => (
+                  <CollectionRow
+                    key={col.id}
+                    collection={col}
+                    checked={false}
+                    onToggle={props.onToggle}
+                  />
+                ))}
+              </Fragment>
+            ))}
+          </Stack>
+        </ScrollArea.Autosize>
       )}
 
-      <ScrollArea.Autosize
-        mah={180}
-        style={{ minHeight: 0 }}
-        viewportRef={setViewport}
-        onScrollPositionChange={updateFade}
-        styles={{
-          viewport: maskImage
-            ? { maskImage, WebkitMaskImage: maskImage }
-            : undefined,
-        }}
-      >
-        <Stack gap="xxs">
-          {props.onCreate && (
-            <Button
-              variant="light"
-              color="grape"
-              size="sm"
-              fullWidth
-              justify="flex-start"
-              leftSection={<FiPlus />}
-              radius="md"
-              loading={creating}
-              onClick={() => void handleCreate()}
-            >
-              {props.createLabel}
-            </Button>
-          )}
-
-          {props.loading && (
-            <Group justify="center" py="xs">
-              <Loader size="sm" color="gray" />
-            </Group>
-          )}
-
-          {props.selectedCollections.map((col) => (
-            <CollectionRow
-              key={col.id}
-              collection={col}
-              checked
-              onToggle={props.onToggle}
-            />
-          ))}
-
-          {sections.map((section) => (
-            <Fragment key={section.label}>
-              {section.label && (
-                <Text size="xs" c="dimmed" fw={500} mt={4}>
-                  {section.label}
-                </Text>
-              )}
-              {section.items.map((col) => (
-                <CollectionRow
-                  key={col.id}
-                  collection={col}
-                  checked={false}
-                  onToggle={props.onToggle}
-                />
-              ))}
-            </Fragment>
-          ))}
-
-          {isEmpty && !props.onCreate && (
-            <Text size="xs" c="dimmed">
+      {/* The loader and the empty/error message sit centered in whatever room is
+          left below the rows (the whole list region when there are none). */}
+      {(props.loading || showMessage) && (
+        <Center style={{ flex: 1 }} py="xs">
+          {props.loading ? (
+            <Loader size="sm" color="gray" />
+          ) : props.error ? (
+            <Text size="sm" c="red" ta="center">
+              {describeError(props.error)}
+            </Text>
+          ) : (
+            <Text size="sm" c="dimmed" ta="center">
               {props.emptyLabel}
             </Text>
           )}
-        </Stack>
-      </ScrollArea.Autosize>
+        </Center>
+      )}
     </Stack>
   );
 }

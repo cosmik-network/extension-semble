@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { CollectionSummary } from "../../../../lib/library";
 import { useMyCollectionSearch } from "../../../../lib/queries";
 import { CollectionList } from "./CollectionList";
@@ -11,7 +12,8 @@ interface Props {
   selectedIds: string[];
   onToggle: (collection: CollectionSummary, checked: boolean) => void;
   onCreate: (name: string, accessType: "OPEN" | "CLOSED") => Promise<void>;
-  searchOpen: boolean;
+  /** Scope pills, rendered between the search field and the rows. */
+  scopeSelector: ReactNode;
   search: string;
   onSearchChange: (value: string) => void;
 }
@@ -48,13 +50,14 @@ export function YourCollectionsTab(props: Props) {
       selectedCollections={props.selectedCollections}
       selectedIds={props.selectedIds}
       onToggle={props.onToggle}
-      searchOpen={props.searchOpen}
+      scopeSelector={props.scopeSelector}
       searchValue={props.search}
       onSearchChange={props.onSearchChange}
       searchPlaceholder="Search or create a collection…"
       onCreate={showCreate ? handleCreate : undefined}
       createLabel={`Create new collection “${query}”`}
       loading={loading}
+      error={searching ? searchQuery.error : undefined}
       emptyLabel={
         searching ? `No collections match “${query}”.` : "No collections yet."
       }
