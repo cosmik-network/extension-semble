@@ -90,7 +90,7 @@ export function getClient(): SembleClient {
   if (!apiKey) throw new NoApiKeyError();
   return (client ??= createSembleClient({
     apiKey,
-    client: "semble-extension-v103",
+    client: "semble-extension-v104",
   }));
 }
 
@@ -99,7 +99,7 @@ export function getClient(): SembleClient {
  * (used to validate a key before saving it).
  */
 export function createClientFor(apiKey: string): SembleClient {
-  return createSembleClient({ apiKey, client: "semble-extension-v103" });
+  return createSembleClient({ apiKey, client: "semble-extension-v104" });
 }
 
 /**
