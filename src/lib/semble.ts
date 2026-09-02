@@ -88,7 +88,10 @@ export async function clearApiKey(): Promise<void> {
 export function getClient(): SembleClient {
   const apiKey = getApiKey();
   if (!apiKey) throw new NoApiKeyError();
-  return (client ??= createSembleClient({ apiKey }));
+  return (client ??= createSembleClient({
+    apiKey,
+    client: "semble-extension-v103",
+  }));
 }
 
 /**
@@ -96,7 +99,7 @@ export function getClient(): SembleClient {
  * (used to validate a key before saving it).
  */
 export function createClientFor(apiKey: string): SembleClient {
-  return createSembleClient({ apiKey });
+  return createSembleClient({ apiKey, client: "semble-extension-v103" });
 }
 
 /**
