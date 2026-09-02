@@ -148,6 +148,7 @@ export function ManageTab(props: Props) {
           region, so the divider/note/buttons stay anchored at the bottom —
           toggling the picker's search never moves them. */}
       <CollectionPicker
+        url={props.url}
         collections={props.collections}
         selectedCollections={selectedCollections}
         selectedIds={selectedIds}

@@ -18,6 +18,8 @@ export const queryKeys = {
     // These live under `collections` so the mutations' `collections.all`
     // invalidations (card added/removed) refresh them too.
     forUrl: (url: string) => ["collections", "forUrl", url] as const,
+    recommended: (url: string) =>
+      ["collections", "recommended", url] as const,
     preview: (collectionId: string) =>
       ["collections", "preview", collectionId] as const,
   },

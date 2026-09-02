@@ -4,6 +4,7 @@ export { useMyCollections } from "./useMyCollections";
 export { useMyCollectionSearch } from "./useMyCollectionSearch";
 export { useOpenCollections } from "./useOpenCollections";
 export { useCollectionSearch } from "./useCollectionSearch";
+export { useRecommendedCollections } from "./useRecommendedCollections";
 export { useUrlState } from "./useUrlState";
 export { useUrlStats } from "./useUrlStats";
 export { useSimilarUrls, SIMILAR_URLS_PAGE_SIZE } from "./useSimilarUrls";

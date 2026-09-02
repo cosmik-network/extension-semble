@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { FiPlus } from "react-icons/fi";
 import { FaSeedling } from "react-icons/fa";
 import {
@@ -18,9 +18,20 @@ import type { CollectionSummary } from "../../../../lib/library";
 import { useScrollFade } from "../../hooks/useScrollFade";
 import classes from "./CollectionPicker.module.css";
 
+interface Section {
+  label: string;
+  items: CollectionSummary[];
+}
+
 interface Props {
   /** Candidate collections for the main (unselected) list. */
   items: CollectionSummary[];
+  /**
+   * Optional labeled groupings of `items` (e.g. the Recommended tab's "Your
+   * collections" / "Open collections"). When provided, the candidate list is
+   * rendered per section with a dimmed header above each non-empty one.
+   */
+  sections?: Section[];
   /** All currently-selected collections — pinned at the top, always checked. */
   selectedCollections: CollectionSummary[];
   selectedIds: string[];
@@ -82,9 +93,15 @@ export function CollectionList(props: Props) {
   const { setViewport, maskImage, updateFade } = useScrollFade();
 
   const selectedIdSet = new Set(props.selectedIds);
-  const remaining = props.items.filter((c) => !selectedIdSet.has(c.id));
+  // Selected collections are pinned above, so drop them from the candidates.
+  const sections = (props.sections ?? [{ label: "", items: props.items }])
+    .map((s) => ({
+      ...s,
+      items: s.items.filter((c) => !selectedIdSet.has(c.id)),
+    }))
+    .filter((s) => s.items.length > 0);
   const hasSelected = props.selectedCollections.length > 0;
-  const isEmpty = !props.loading && !hasSelected && remaining.length === 0;
+  const isEmpty = !props.loading && !hasSelected && sections.length === 0;
 
   async function handleCreate() {
     if (creating || !props.onCreate) return;
@@ -165,13 +182,22 @@ export function CollectionList(props: Props) {
             />
           ))}
 
-          {remaining.map((col) => (
-            <CollectionRow
-              key={col.id}
-              collection={col}
-              checked={false}
-              onToggle={props.onToggle}
-            />
+          {sections.map((section) => (
+            <Fragment key={section.label}>
+              {section.label && (
+                <Text size="xs" c="dimmed" fw={500} mt={4}>
+                  {section.label}
+                </Text>
+              )}
+              {section.items.map((col) => (
+                <CollectionRow
+                  key={col.id}
+                  collection={col}
+                  checked={false}
+                  onToggle={props.onToggle}
+                />
+              ))}
+            </Fragment>
           ))}
 
           {isEmpty && !props.onCreate && (

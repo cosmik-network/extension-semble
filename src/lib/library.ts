@@ -165,6 +165,33 @@ export async function searchCollections(input: {
   return body.collections.map(toCollectionSummary);
 }
 
+export interface RecommendedCollections {
+  /** The user's own collections that contain URLs similar to the given one. */
+  myCollections: CollectionSummary[];
+  /** Open collections from across the network (excluding the user's own). */
+  openCollections: CollectionSummary[];
+}
+
+/**
+ * Collections recommended for saving the given URL to — those containing
+ * semantically similar URLs, ranked by how many each contains.
+ */
+export async function getRecommendedCollectionsForUrl(
+  url: string,
+): Promise<RecommendedCollections> {
+  const body = await unwrap(
+    getClient().collections.recommendedCollectionsForUrl({ query: { url } }),
+  );
+  return {
+    myCollections: body.myCollections.map(toCollectionSummary),
+    // The network set is open collections by definition; default the access
+    // type so the seedling badge renders even if the API omits it.
+    openCollections: body.openCollections.map((col) =>
+      toCollectionSummary({ ...col, accessType: col.accessType ?? "OPEN" }),
+    ),
+  };
+}
+
 /**
  * Lightweight saved/unsaved check for a URL — used by the background script to
  * set the toolbar badge. Unlike {@link loadUrlState} it never falls through to
