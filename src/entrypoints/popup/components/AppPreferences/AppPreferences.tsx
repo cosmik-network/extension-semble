@@ -40,9 +40,8 @@ function ModeOption(props: ModeOptionProps) {
 }
 
 /**
- * App behaviour preferences shown in the settings view. Currently: whether
- * clicking the toolbar icon opens the popup or the side panel. Hidden where the
- * side panel isn't supported (e.g. Firefox), since the choice is moot there.
+ * Whether clicking the toolbar icon opens the popup or the side panel
+ * (Chrome) / sidebar (Firefox). Hidden where neither is supported.
  */
 export function AppPreferences() {
   const [mode, setMode] = useOpenMode();

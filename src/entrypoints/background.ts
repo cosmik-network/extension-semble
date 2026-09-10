@@ -7,6 +7,7 @@ import { BADGE_REFRESH_MESSAGE } from "../lib/badge";
 import { openModeStore, type OpenMode } from "../lib/openMode";
 import {
   canUseSidePanel,
+  hasAutoOpenOnClick,
   openSidePanel,
   setOpenPanelOnActionClick,
 } from "../lib/sidepanel";
@@ -144,9 +145,13 @@ async function applyOpenMode(mode: OpenMode): Promise<void> {
 /** Opens the popup or side panel (per the user's preference) to show progress. */
 async function openSurfaceForJob(windowId?: number): Promise<void> {
   const mode = await openModeStore().getValue();
-  if (mode === "sidepanel" && canUseSidePanel() && windowId != null) {
-    await openSidePanel(windowId);
-    return;
+  if (mode === "sidepanel" && canUseSidePanel()) {
+    try {
+      await openSidePanel(windowId);
+      return;
+    } catch {
+      // Gesture may have lapsed (Firefox) — fall through to the popup.
+    }
   }
   // Best-effort; bound to the context-menu user gesture. If it can't open, the
   // job still runs and notifies.
@@ -270,6 +275,13 @@ export default defineBackground(() => {
   const openMode = openModeStore();
   void openMode.getValue().then(applyOpenMode);
   openMode.watch((mode) => void applyOpenMode(mode ?? "popup"));
+
+  // Firefox has no auto-open-on-click flag; fires only when the popup is
+  // cleared, i.e. side-panel mode is active.
+  action.onClicked.addListener(() => {
+    if (hasAutoOpenOnClick()) return;
+    void openSidePanel();
+  });
 
   // Re-evaluate on login; clear stale state on logout.
   subscribeApiKey(() => {

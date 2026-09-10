@@ -1,40 +1,55 @@
-/**
- * Chrome's side-panel API (`chrome.sidePanel`) isn't part of the
- * webextension-polyfill surface and doesn't exist on Firefox, so reach for it
- * through a narrow global cast and feature-detect before use.
- */
-interface SidePanelApi {
+import { browser } from "wxt/browser";
+
+/** Neither API is in WXT's chrome-types-based `browser` surface, so reach for
+ * both through narrow casts and feature-detect before use. */
+interface ChromeSidePanelApi {
   open(options: { windowId?: number; tabId?: number }): Promise<void>;
   setPanelBehavior?(behavior: {
     openPanelOnActionClick: boolean;
   }): Promise<void>;
 }
 
-function sidePanelApi(): SidePanelApi | undefined {
+function chromeSidePanelApi(): ChromeSidePanelApi | undefined {
   const globalChrome = (globalThis as { chrome?: { sidePanel?: unknown } })
     .chrome;
-  return globalChrome?.sidePanel as SidePanelApi | undefined;
+  return globalChrome?.sidePanel as ChromeSidePanelApi | undefined;
 }
 
-/** Whether the browser supports opening the extension's side panel. */
+interface FirefoxSidebarApi {
+  open(): Promise<void>;
+}
+
+function firefoxSidebarApi(): FirefoxSidebarApi | undefined {
+  return (browser as unknown as { sidebarAction?: FirefoxSidebarApi })
+    .sidebarAction;
+}
+
 export function canUseSidePanel(): boolean {
-  return !!sidePanelApi();
+  return !!chromeSidePanelApi() || !!firefoxSidebarApi();
 }
 
-/** Opens the extension's side panel for a window. No-ops where unsupported. */
-export async function openSidePanel(windowId: number): Promise<void> {
-  const api = sidePanelApi();
-  if (api) await api.open({ windowId });
+/** Firefox has no auto-open flag; its sidebar is opened via an explicit
+ * `action.onClicked` handler in background.ts instead. */
+export function hasAutoOpenOnClick(): boolean {
+  return !!chromeSidePanelApi()?.setPanelBehavior;
 }
 
-/**
- * Makes a toolbar-icon click open the side panel (when enabled) instead of the
- * popup. Pair with clearing the action popup. No-ops where unsupported.
- */
+/** `windowId` is required on Chrome; Firefox's sidebar always opens for the
+ * current window, and must be called from a user-gesture handler or it throws. */
+export async function openSidePanel(windowId?: number): Promise<void> {
+  const chromeApi = chromeSidePanelApi();
+  if (chromeApi) {
+    if (windowId != null) await chromeApi.open({ windowId });
+    return;
+  }
+  await firefoxSidebarApi()?.open();
+}
+
+/** Pair with clearing the action popup. Chrome-only; no-ops elsewhere. */
 export async function setOpenPanelOnActionClick(
   enabled: boolean,
 ): Promise<void> {
-  const api = sidePanelApi();
+  const api = chromeSidePanelApi();
   if (!api?.setPanelBehavior) return;
   await api.setPanelBehavior({ openPanelOnActionClick: enabled });
 }
