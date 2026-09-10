@@ -6,3 +6,9 @@ body {
     margin: 0;
     background: transparent;
 }
+
+/* Firefox's sidebar_action docs get a smaller root font-size than regular
+   content, shrinking Mantine's whole rem-based scale — pin it explicitly. */
+html {
+    font-size: 16px;
+}
