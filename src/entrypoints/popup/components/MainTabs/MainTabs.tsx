@@ -76,7 +76,11 @@ export function MainTabs(props: MainTabsProps) {
           </Scroller>
         </Tabs.List>
 
-        <Tabs.Panel value="save" pt="sm" style={PANEL_STYLE}>
+        <Tabs.Panel
+          value="save"
+          pt="sm"
+          style={{ ...PANEL_STYLE, display: "flex", flexDirection: "column" }}
+        >
           {/* Keyed by card id so local edits reset when the card is
               added/removed (the fresh server state becomes the baseline). */}
           <ManageTab

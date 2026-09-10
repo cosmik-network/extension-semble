@@ -22,6 +22,7 @@ import {
 } from "../../lib/queries";
 import { dismissSaveAllJob, requestSaveAllRetry } from "../../lib/saveAllTabs";
 import { useActiveTabUrl } from "./hooks/useActiveTabUrl";
+import { usePopupMaxHeight } from "./hooks/usePopupMaxHeight";
 import { AccountSettings } from "./components/AccountSettings";
 import { AppPreferences } from "./components/AppPreferences";
 import { ApiKeyForm } from "./components/ApiKeyForm";
@@ -75,8 +76,11 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
   // A definite height is required for the inner scroll regions to bound and
   // scroll. The side panel always fills its window; in the popup, loading/ready
   // and the search view share one height so it doesn't jump, while shorter
-  // states (sign-in, unsupported, error) size to content.
+  // states (sign-in, unsupported, error) size to content. The shared height is
+  // measured, not fixed: Firefox clips the popup to the room below the toolbar
+  // without telling the document (see usePopupMaxHeight).
   const sidepanel = surface === "sidepanel";
+  const popupHeight = usePopupMaxHeight(!sidepanel);
   // A bulk save takes over the main view with its own progress UI.
   const showProgress = !!saveAllJob && hasKey && view === "main";
   // Search shares the tall, scrollable height; settings sizes to its content.
@@ -97,7 +101,7 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
         zIndex: 0,
         display: "flex",
         flexDirection: "column",
-        height: sidepanel ? "100vh" : fixedHeight ? 590 : undefined,
+        height: sidepanel ? "100vh" : fixedHeight ? popupHeight : undefined,
         // Short, signed-in states (unsupported/error/settings) size to content,
         // which can be too short for the profile-menu dropdown — reserve room so
         // it opens downward instead of being clipped by the popup window. Keyed

@@ -137,30 +137,33 @@ export function ManageTab(props: Props) {
   }
 
   return (
-    <Stack gap="sm" h="100%">
-      {error && (
-        <Alert color="red" variant="light">
-          {describeError(error)}
-        </Alert>
-      )}
+    <Stack gap="sm" style={{ flex: 1, minHeight: 0 }}>
+      {/* Scrolls when the card is too short; the buttons below stay visible. */}
+      <Stack
+        gap="sm"
+        style={{ flex: 1, minHeight: 0, overflowX: "hidden", overflowY: "auto" }}
+      >
+        {error && (
+          <Alert color="red" variant="light">
+            {describeError(error)}
+          </Alert>
+        )}
 
-      {/* The picker absorbs all free space and its list is the only scroll
-          region, so the divider/note/buttons stay anchored at the bottom —
-          toggling the picker's search never moves them. */}
-      <CollectionPicker
-        url={props.url}
-        collections={props.collections}
-        selectedCollections={selectedCollections}
-        selectedIds={selectedIds}
-        onToggle={handleToggle}
-        onCreate={handleCreateCollection}
-      />
+        {/* Absorbs free space so the divider/note stay put. */}
+        <CollectionPicker
+          url={props.url}
+          collections={props.collections}
+          selectedCollections={selectedCollections}
+          selectedIds={selectedIds}
+          onToggle={handleToggle}
+          onCreate={handleCreateCollection}
+        />
 
-      <Divider />
+        <Divider />
 
-      <NoteEditor value={note} onChange={setNote} />
+        <NoteEditor value={note} onChange={setNote} />
+      </Stack>
 
-      {/* Pinned to the bottom */}
       <Group gap="xs" wrap="nowrap">
         {cardId && (
           <Tooltip label="Remove from library">

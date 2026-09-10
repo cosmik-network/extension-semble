@@ -6,6 +6,9 @@ import { RecommendedTab } from "./RecommendedTab";
 import { OpenCollectionsTab } from "./OpenCollectionsTab";
 import { ScopePills, type Scope } from "./ScopePills";
 
+/** Search field + scope pills + ~120px of rows. */
+const MIN_HEIGHT = 200;
+
 interface Props {
   /** The URL being saved — drives the Recommended scope. */
   url: string;
@@ -40,10 +43,10 @@ export function CollectionPicker(props: Props) {
   const pills = <ScopePills value={scope} onChange={changeScope} />;
 
   return (
-    // flex: 1 makes the picker absorb all free space; minHeight: 0 lets it
-    // shrink below content height so the list scrolls instead of pushing the
-    // note/buttons below the fold.
-    <Stack gap="xs" style={{ flex: 1, minHeight: 0 }}>
+    // flex: 1 absorbs free space and lets the list shrink and scroll instead of
+    // pushing the note/buttons down — but no further than MIN_HEIGHT; below that
+    // the whole tab scrolls rather than the list collapsing to nothing.
+    <Stack gap="xs" style={{ flex: 1, minHeight: MIN_HEIGHT }}>
       {scope === "your" ? (
         <YourCollectionsTab
           collections={props.collections}
