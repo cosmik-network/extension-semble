@@ -24,7 +24,7 @@ export const CONNECTION_TYPE_CONFIG: Record<
   }
 > = {
   RELATED: {
-    label: "Related",
+    label: "Relates to",
     icon: BiLink,
     description: "Generally connected or associated",
     notePlaceholder: "Describe how these are related...",
@@ -48,7 +48,7 @@ export const CONNECTION_TYPE_CONFIG: Record<
     notePlaceholder: "Explain how this responds to or answers the topic...",
   },
   HELPFUL: {
-    label: "Helpful",
+    label: "Adds context to",
     icon: BiHelpCircle,
     description: "Provides useful context or background",
     notePlaceholder: "Describe what context or background this provides...",
@@ -60,13 +60,13 @@ export const CONNECTION_TYPE_CONFIG: Record<
     notePlaceholder: "Explain how this link leads to the other",
   },
   EXPLAINER: {
-    label: "Explainer",
+    label: "Explains",
     icon: MdOutlinePsychologyAlt,
     description: "Explains or summarizes for a broader audience",
     notePlaceholder: "Describe how this explains or clarifies...",
   },
   SUPPLEMENT: {
-    label: "Supplement",
+    label: "Supplements",
     icon: BsPaperclip,
     description:
       "Accompanying resources (e.g. data, code, other supplemental material)",
