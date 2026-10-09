@@ -35,6 +35,8 @@ export const CONNECTION_TYPES = [
   "LEADS_TO",
   "EXPLAINER",
   "SUPPLEMENT",
+  "SAME_AS",
+  "REFERENCES",
 ] as const;
 
 export type ConnectionType = (typeof CONNECTION_TYPES)[number];
