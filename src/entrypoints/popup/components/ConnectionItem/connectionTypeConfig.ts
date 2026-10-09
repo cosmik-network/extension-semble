@@ -8,7 +8,9 @@ import {
   BiXCircle,
 } from "react-icons/bi";
 import { BsPaperclip } from "react-icons/bs";
+import { LuArrowLeftRight } from "react-icons/lu";
 import { MdOutlinePsychologyAlt } from "react-icons/md";
+import { TbBlockquote } from "react-icons/tb";
 
 /**
  * Label, icon and copy per connection type, mirroring the web app's
@@ -71,5 +73,17 @@ export const CONNECTION_TYPE_CONFIG: Record<
     description:
       "Accompanying resources (e.g. data, code, other supplemental material)",
     notePlaceholder: "Explain what additional information this adds...",
+  },
+  SAME_AS: {
+    label: "Same as",
+    icon: LuArrowLeftRight,
+    description: "The same thing in a different place (mirror, reupload, DOI)",
+    notePlaceholder: "Note where this version differs, if at all...",
+  },
+  REFERENCES: {
+    label: "References",
+    icon: TbBlockquote,
+    description: "Cites or points to the other",
+    notePlaceholder: "Describe what is referenced or cited...",
   },
 };
