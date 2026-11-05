@@ -41,6 +41,11 @@ export const CONNECTION_TYPES = [
 
 export type ConnectionType = (typeof CONNECTION_TYPES)[number];
 
+/** Narrows a free-form type string from the API to a known connection type. */
+export function isConnectionType(value: string): value is ConnectionType {
+  return (CONNECTION_TYPES as readonly string[]).includes(value);
+}
+
 export interface CreateConnectionInput {
   sourceUrl: string;
   targetUrl: string;

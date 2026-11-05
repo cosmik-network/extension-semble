@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { domainFromUrl } from "../../../../lib/activeTab";
-import type { Connection } from "../../../../lib/connections";
+import { type Connection, isConnectionType } from "../../../../lib/connections";
 import { CONNECTION_TYPE_CONFIG } from "./connectionTypeConfig";
 import classes from "./ConnectionItem.module.css";
 
@@ -27,7 +27,8 @@ export function ConnectionItem(props: { connection: Connection }) {
   const domain = domainFromUrl(other.url);
   const [imageError, setImageError] = useState(false);
 
-  const typeConfig = type ? CONNECTION_TYPE_CONFIG[type] : undefined;
+  const typeConfig =
+    type && isConnectionType(type) ? CONNECTION_TYPE_CONFIG[type] : undefined;
   const TypeIcon = typeConfig?.icon;
 
   return (
