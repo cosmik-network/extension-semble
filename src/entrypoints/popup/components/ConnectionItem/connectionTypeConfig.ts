@@ -11,13 +11,14 @@ import { BsPaperclip } from "react-icons/bs";
 import { LuArrowLeftRight } from "react-icons/lu";
 import { MdOutlinePsychologyAlt } from "react-icons/md";
 import { TbBlockquote } from "react-icons/tb";
+import type { ConnectionType } from "../../../../lib/connections";
 
 /**
  * Label, icon and copy per connection type, mirroring the web app's
  * `features/connections/const/connectionTypes.ts`.
  */
 export const CONNECTION_TYPE_CONFIG: Record<
-  string,
+  ConnectionType,
   {
     label: string;
     icon: IconType;
