@@ -12,6 +12,13 @@ export default defineConfig({
   autoIcons: {
     baseIconPath: "assets/icon.svg",
   },
+  hooks: {
+    'build:manifestGenerated': (wxt, manifest) => {
+      if (wxt.config.browser === 'firefox' && manifest.sidebar_action && manifest.icons) {
+        manifest.sidebar_action.default_icon = manifest.icons;
+      }
+    },
+  },
   manifest: {
     name: "Semble",
     description:
