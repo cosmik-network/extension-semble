@@ -23,7 +23,12 @@ export interface UrlState {
   cardId?: string;
   /** Id of the attached note card, when the saved card has a note. */
   noteCardId?: string;
-  metadata: UrlMetadata;
+  /**
+   * The saved card's metadata — present only when the URL is in the library
+   * (it comes free with the status check). Unsaved URLs load theirs separately
+   * via {@link getUrlMetadata} so the popup never waits on it.
+   */
+  metadata?: UrlMetadata;
   note: string;
   /** Ids of the collections that currently contain this URL. */
   collectionIds: string[];
@@ -204,7 +209,10 @@ export async function isUrlInLibrary(url: string): Promise<boolean> {
   return !!status.card;
 }
 
-/** Loads the saved/unsaved state and metadata for a URL. */
+/**
+ * Loads the saved/unsaved state for a URL — a single request. Metadata is only
+ * included when the URL is saved; otherwise use {@link getUrlMetadata}.
+ */
 export async function loadUrlState(url: string): Promise<UrlState> {
   const status = await unwrap(
     getClient().cards.urlLibraryStatus({ query: { url } }),
@@ -223,16 +231,19 @@ export async function loadUrlState(url: string): Promise<UrlState> {
     };
   }
 
-  // Not saved yet — fetch metadata for the preview.
-  const meta = await unwrap(getClient().cards.urlMetadata({ query: { url } }));
   return {
     cardId: undefined,
     noteCardId: undefined,
     note: "",
     collectionIds: [],
     collections: [],
-    metadata: toMetadata(meta.metadata),
   };
+}
+
+/** Title/description/image for a URL's preview card. */
+export async function getUrlMetadata(url: string): Promise<UrlMetadata> {
+  const meta = await unwrap(getClient().cards.urlMetadata({ query: { url } }));
+  return toMetadata(meta.metadata);
 }
 
 /** Aggregated Semble-wide stats for a URL (null when the API returns none). */

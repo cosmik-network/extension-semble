@@ -17,7 +17,7 @@ import { BiSolidChevronDown } from "react-icons/bi";
 import { domainFromUrl, faviconUrl } from "../../../../lib/activeTab";
 import type { ConnectionType } from "../../../../lib/connections";
 import { describeError } from "../../../../lib/errors";
-import type { UrlState } from "../../../../lib/library";
+import type { UrlMetadata } from "../../../../lib/library";
 import { useCreateConnection } from "../../../../lib/mutations";
 import { queryKeys } from "../../../../lib/queries/queryKeys";
 import { CONNECTION_TYPE_CONFIG } from "../ConnectionItem";
@@ -57,11 +57,12 @@ export function ConnectionComposer(props: Props) {
 
   const createConnection = useCreateConnection();
 
-  // Cache-only read: the main view has already loaded this page's state.
+  // Cache-only read: the main view's card loads this page's metadata (it may
+  // still be in flight, in which case this falls back to the bare URL).
   const queryClient = useQueryClient();
-  const pageMetadata = queryClient.getQueryData<UrlState>(
-    queryKeys.urlState.byUrl(props.url),
-  )?.metadata;
+  const pageMetadata = queryClient.getQueryData<UrlMetadata>(
+    queryKeys.urlMetadata.byUrl(props.url),
+  );
 
   const samePage =
     !!target && normalizeUrl(target.url) === normalizeUrl(props.url);

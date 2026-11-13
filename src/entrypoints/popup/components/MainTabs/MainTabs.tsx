@@ -1,7 +1,6 @@
 import { Card, Scroller, Stack, Tabs } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import type { CollectionSummary, UrlState } from "../../../../lib/library";
-import { useUrlStats } from "../../../../lib/queries";
 import { UrlCard } from "../UrlCard";
 import { ManageTab } from "../ManageTab";
 import { RelatedTab } from "../RelatedTab";
@@ -29,21 +28,14 @@ export function MainTabs(props: MainTabsProps) {
     defaultValue: "save",
     getInitialValueInEffect: false,
   });
-  // Loads independently of the URL state so the tabs never wait on it.
-  const statsQuery = useUrlStats(props.url);
 
   return (
     <Stack gap="sm" style={PANEL_STYLE}>
       {/* Fixed header — sits over the banner background. */}
       <Card p={0} bg="transparent">
-        <UrlCard
-          metadata={props.urlState.metadata}
-          inLibrary={!!props.urlState.cardId}
-          // Only this level can tell "still loading" from "the API returned
-          // none" — the row reserves space for the first, and is skipped for
-          // the second (and for an outright failure).
-          stats={statsQuery.isPending ? "pending" : (statsQuery.data ?? undefined)}
-        />
+        {/* Metadata and stats suspend inside the card, so the tabs below
+            never wait on them. */}
+        <UrlCard url={props.url} inLibrary={!!props.urlState.cardId} />
       </Card>
 
       <Tabs

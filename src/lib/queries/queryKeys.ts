@@ -27,6 +27,10 @@ export const queryKeys = {
     all: ["urlState"] as const,
     byUrl: (url: string) => ["urlState", url] as const,
   },
+  urlMetadata: {
+    all: ["urlMetadata"] as const,
+    byUrl: (url: string) => ["urlMetadata", url] as const,
+  },
   urlStats: {
     all: ["urlStats"] as const,
     byUrl: (url: string) => ["urlStats", url] as const,

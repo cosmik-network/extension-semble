@@ -6,6 +6,7 @@ export { useOpenCollections } from "./useOpenCollections";
 export { useCollectionSearch } from "./useCollectionSearch";
 export { useRecommendedCollections } from "./useRecommendedCollections";
 export { useUrlState } from "./useUrlState";
+export { useUrlMetadata } from "./useUrlMetadata";
 export { useUrlStats } from "./useUrlStats";
 export { useSimilarUrls, SIMILAR_URLS_PAGE_SIZE } from "./useSimilarUrls";
 export { useSembleSearch, SEARCH_PAGE_SIZE } from "./useSembleSearch";
