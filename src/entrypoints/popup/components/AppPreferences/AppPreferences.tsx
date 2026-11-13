@@ -69,6 +69,10 @@ export function AppPreferences() {
             onSelect={setMode}
           />
         </Group>
+        <Text fz="xs" c="dimmed">
+          The side panel's position (left or right) can be changed in your
+          browser settings.
+        </Text>
       </Stack>
     </>
   );
