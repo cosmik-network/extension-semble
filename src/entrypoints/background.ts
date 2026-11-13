@@ -12,7 +12,9 @@ import {
   setOpenPanelOnActionClick,
 } from "../lib/sidepanel";
 import {
+  CONFIRM_SAVE_ALL_MESSAGE,
   RETRY_SAVE_ALL_MESSAGE,
+  type SaveAllCandidate,
   type SaveAllJob,
   saveAllJobStore,
 } from "../lib/saveAllTabs";
@@ -216,29 +218,72 @@ async function finishJob(job: SaveAllJob): Promise<void> {
   void evaluateActiveTab(true);
 }
 
-/** Sweeps every saveable tab in the window into the library, showing progress. */
-async function startSaveAllTabs(windowId?: number): Promise<void> {
+/**
+ * Snapshots the window's saveable tabs into a pending job and opens the
+ * popup/side panel to ask for confirmation. Nothing is saved until the user
+ * confirms there (see {@link runConfirmedSaveAll}).
+ */
+async function requestSaveAllTabs(windowId?: number): Promise<void> {
   const existing = await saveAllJobStore().getValue();
   if (existing?.status === "running") return;
 
+  // Open first, while the context-menu user gesture is still valid.
   await openSurfaceForJob(windowId);
 
   const tabs = await browser.tabs.query(
     windowId != null ? { windowId } : { currentWindow: true },
   );
-  const urls = [...new Set(tabs.map((tab) => tab.url).filter(isSupportedUrl))];
+  const candidates = new Map<string, SaveAllCandidate>();
+  for (const tab of tabs) {
+    if (isSupportedUrl(tab.url) && !candidates.has(tab.url)) {
+      candidates.set(tab.url, { url: tab.url, title: tab.title });
+    }
+  }
 
-  const job: SaveAllJob = {
-    status: "running",
-    total: urls.length,
+  if (candidates.size === 0) {
+    await saveAllJobStore().setValue(null);
+    notify("Nothing to save", "No tabs in this window can be saved to Semble.");
+    return;
+  }
+
+  await persistJob({
+    status: "confirm",
+    candidates: [...candidates.values()],
+    urls: [],
+    total: candidates.size,
     saved: 0,
     alreadySaved: 0,
     failedUrls: [],
     updatedAt: Date.now(),
+  });
+}
+
+/**
+ * Runs the pending job once the user confirms it in the popup/side panel,
+ * saving only the `selected` URLs (restricted to the job's own candidates).
+ */
+async function runConfirmedSaveAll(selected: unknown): Promise<void> {
+  const stored = await saveAllJobStore().getValue();
+  if (stored?.status !== "confirm") return;
+
+  const chosen = new Set(Array.isArray(selected) ? selected : []);
+  const urls = stored.candidates
+    .map((candidate) => candidate.url)
+    .filter((url) => chosen.has(url));
+  if (urls.length === 0) {
+    await saveAllJobStore().setValue(null);
+    return;
+  }
+
+  const job: SaveAllJob = {
+    ...stored,
+    status: "running",
+    urls,
+    total: urls.length,
   };
   await persistJob(job);
 
-  await saveEach(job, urls);
+  await saveEach(job, job.urls);
   await retryFailedUrls(job); // auto-retry failures once
   await finishJob(job);
 }
@@ -310,6 +355,8 @@ export default defineBackground(() => {
   browser.runtime.onMessage.addListener((message) => {
     if (message?.type === BADGE_REFRESH_MESSAGE) {
       void evaluateActiveTab(true);
+    } else if (message?.type === CONFIRM_SAVE_ALL_MESSAGE) {
+      void runConfirmedSaveAll(message.urls);
     } else if (message?.type === RETRY_SAVE_ALL_MESSAGE) {
       void retrySaveAllFailures();
     }
@@ -321,7 +368,7 @@ export default defineBackground(() => {
   browser.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === "semble-save-window") {
       if (!requireApiKey()) return;
-      void startSaveAllTabs(tab?.windowId);
+      void requestSaveAllTabs(tab?.windowId);
       return;
     }
 

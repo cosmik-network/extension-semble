@@ -20,7 +20,11 @@ import {
   useMyProfile,
   useUrlState,
 } from "../../lib/queries";
-import { dismissSaveAllJob, requestSaveAllRetry } from "../../lib/saveAllTabs";
+import {
+  confirmSaveAll,
+  dismissSaveAllJob,
+  requestSaveAllRetry,
+} from "../../lib/saveAllTabs";
 import { useActiveTabUrl } from "./hooks/useActiveTabUrl";
 import { usePopupMaxHeight } from "./hooks/usePopupMaxHeight";
 import { AccountSettings } from "./components/AccountSettings";
@@ -28,6 +32,7 @@ import { AppPreferences } from "./components/AppPreferences";
 import { ApiKeyForm } from "./components/ApiKeyForm";
 import { AppHeader } from "./components/AppHeader";
 import { MainTabs } from "./components/MainTabs";
+import { SaveAllConfirm } from "./components/SaveAllConfirm";
 import { SaveAllProgress } from "./components/SaveAllProgress";
 import { SearchTab } from "./components/SearchTab";
 import headerBg from "../../assets/semble-header-bg.webp";
@@ -134,6 +139,14 @@ function App(props: { surface?: "popup" | "sidepanel" }) {
           <AccountSettings onCleared={() => setView("main")} />
           <AppPreferences />
         </Stack>
+      ) : showProgress && saveAllJob!.status === "confirm" ? (
+        <SaveAllConfirm
+          // Remount per request so the checkboxes reset to all-selected.
+          key={saveAllJob!.updatedAt}
+          candidates={saveAllJob!.candidates}
+          onConfirm={confirmSaveAll}
+          onCancel={dismissSaveAllJob}
+        />
       ) : showProgress ? (
         <SaveAllProgress
           job={saveAllJob!}

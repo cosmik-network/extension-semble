@@ -48,7 +48,7 @@ export function SaveAllProgress(props: SaveAllProgressProps) {
                 Try again
               </Button>
             )}
-            <Button variant="subtle" color="gray" onClick={props.onDismiss}>
+            <Button variant="light" color="gray" onClick={props.onDismiss}>
               Done
             </Button>
           </Stack>
